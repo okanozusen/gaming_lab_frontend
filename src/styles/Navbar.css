@@ -1,0 +1,97 @@
+/* Navbar container */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #222;
+    padding: 10px 20px;
+    z-index: 1000; /* ✅ Keeps it on top */
+}
+
+body {
+    padding-top: 70px; /* ✅ Pushes content below the navbar */
+}
+
+
+/* Navigation links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    justify-content: center; /* Ensures all links are aligned */
+    align-items: center;
+    gap: 30px; /* Even spacing */
+    flex-wrap: nowrap; /* Prevents links from wrapping */
+    width: 100%;
+}
+
+/* Individual link styles */
+.nav-links li {
+    white-space: nowrap; /* Ensures "Friends", "Sign In", "Register" stay in one line */
+}
+
+.nav-links li a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: color 0.3s ease-in-out;
+    white-space: nowrap; /* Prevents text from wrapping */
+}
+
+/* Hover effect */
+.nav-links li a:hover {
+    color: #f0f0f0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+    .navbar {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 20px;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+}
+
+/* ✅ Align user info properly */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto; /* Push to right */
+    padding-right: 20px;
+}
+
+/* ✅ Profile Picture Styling */
+.nav-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid white;
+    object-fit: cover;
+}
+
+/* ✅ Username Styling */
+/* ✅ Prevent username from going off-screen */
+.nav-username {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px; /* ✅ Limit username width */
+}
+
+.navbar .logo {
+    font-size: 1.5em;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+}

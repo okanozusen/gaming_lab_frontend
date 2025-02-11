@@ -1,0 +1,163 @@
+/* ✅ Fix Navbar Overlay */
+.friend-profile-page {
+    margin-top: 100px; /* Push content down so it doesn't get covered */
+    padding: 20px;
+}
+
+/* ✅ Banner Section (With Proper Profile Pic Placement) */
+.friend-banner-container {
+    width: 100%;
+    height: 250px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    border: 3px solid #00aaff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 120px; /* ✅ Creates space for profile pic */
+}
+
+/* ✅ Profile Picture Positioned Correctly */
+.friend-profile-container {
+    text-align: center;
+    position: relative;
+}
+
+.friend-profile-pic {
+    width: 200px;
+    height: 200px;
+    border: 5px solid white;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #000;
+    position: absolute;
+    top: -100px; /* ✅ Moves the profile pic ON TOP of the banner */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* ✅ Username Styling */
+.friend-username {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+/* ✅ Gaming Preferences Section */
+.friend-preferences {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 80px;
+}
+
+.friend-platforms, .friend-genres {
+    width: 40%;
+    background: #1f1f1f;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.friend-platforms h3, .friend-genres h3 {
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 10px;
+}
+
+/* ✅ Platforms & Genres Display */
+.friend-platforms ul, .friend-genres ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.platform-tag, .genre-tag {
+    background-color: #00aaff;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* ✅ Messaging Section */
+.message-container {
+    width: 60%;
+    margin: 30px auto;
+    background: #1f1f1f;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.chat-history {
+    height: 250px;
+    overflow-y: auto;
+    background: #2a2a2a;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.message {
+    background: #00aaff;
+    color: white;
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-radius: 5px;
+    text-align: left;
+}
+
+/* ✅ Message Input */
+.message-input {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.message-input input {
+    width: 70%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+}
+
+.message-input button {
+    background-color: #00aaff;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* ✅ Mobile Adjustments */
+@media (max-width: 768px) {
+    .friend-preferences {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .friend-platforms, .friend-genres {
+        width: 90%;
+    }
+
+    .message-container {
+        width: 90%;
+    }
+}

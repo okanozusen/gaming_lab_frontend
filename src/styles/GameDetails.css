@@ -1,0 +1,175 @@
+/* ✅ Dark Theme */
+body {
+    background-color: #121212;
+    color: #fff;
+    font-family: "Poppins", sans-serif;
+}
+
+/* ✅ Game Details Section */
+.game-details {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.3);
+    margin-top: 80px; /* Push content below navbar */
+    padding: 20px;
+}
+
+/* ✅ Game Title */
+.game-details h1 {
+    text-align: center;
+    font-size: 2rem;
+    color: #00eaff;
+}
+
+/* ✅ Game Cover Image */
+.game-cover {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 255, 255, 0.5);
+}
+
+/* ✅ Post Section */
+.posts-container {
+    margin-top: 20px;
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(255, 0, 255, 0.3);
+}
+
+/* ✅ Post Box */
+.post {
+    background: #232323;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0px 0px 5px rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.post:hover {
+    transform: scale(1.02);
+}
+
+/* ✅ Post Header */
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+/* ✅ Profile Image */
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #00eaff;
+}
+
+/* ✅ Add Friend Button */
+.add-friend-btn {
+    background: linear-gradient(135deg, #ff00ff, #ff6600);
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.add-friend-btn:hover {
+    background: linear-gradient(135deg, #ff6600, #ff00ff);
+}
+
+/* ✅ Text Input for Posts */
+textarea {
+    width: 100%;
+    background: #232323;
+    color: #fff;
+    border: 2px solid #00eaff;
+    border-radius: 5px;
+    padding: 8px;
+    margin-top: 10px;
+    resize: none;
+}
+
+/* ✅ Post Button */
+button[type="submit"] {
+    background: linear-gradient(135deg, #00eaff, #0088ff);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease-in-out;
+}
+
+button[type="submit"]:hover {
+    background: linear-gradient(135deg, #0088ff, #00eaff);
+}
+
+/* ✅ Comments Section */
+.comments-container {
+    margin-top: 10px;
+    padding-left: 10px;
+    border-left: 2px solid rgba(0, 255, 255, 0.3);
+}
+
+/* ✅ Replies */
+.comment {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 5px;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+/* ✅ No Comments Text */
+.no-comments {
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+}
+
+/* ✅ Fix post text color */
+.post p {
+    color:  #0088ff; /* Light gray for readability */
+    font-size: 16px;
+}
+
+/* ✅ Fix replies text color */
+.comment p {
+    color:  #0088ff; /* Slightly dimmed text for replies */
+    font-size: 14px;
+}
+
+.small-cover {
+    max-width: 300px; /* Adjust width */
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Ensure navbar doesn't overlap content */
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #1f1f1f;
+    z-index: 1000;
+    height: 60px; /* Ensure height is explicitly set */
+}
+
+/* Ensure navbar doesn't overlap content */
+.page-container {
+    margin-top: 80px;
+    padding: 20px;
+}
+
+

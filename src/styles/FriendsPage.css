@@ -1,0 +1,61 @@
+.friends-page {
+    text-align: center;
+    padding: 20px;
+}
+
+.friends-list {
+    list-style: none;
+    padding: 0;
+}
+
+.friends-list li {
+    margin: 10px 0;
+    font-size: 18px;
+}
+
+.friends-list a {
+    text-decoration: none;
+    color: #3498db;
+    font-weight: bold;
+}
+
+.friends-list a:hover {
+    text-decoration: underline;
+}
+
+/* Ensure navbar doesn't overlap content */
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #1f1f1f;
+    z-index: 1000;
+}
+
+.page-container {
+    margin-top: 80px; /* Adjust based on the height of your navbar */
+}
+
+.friend-link {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #222;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: background 0.3s;
+}
+
+.friend-link:hover {
+    background-color: #00aaff;
+}
+
+.friend-profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
