@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "../styles/GamePage.css";
 
-const API_BASE_URL = "http://localhost:5000/api/games";
+const API_BASE_URL = process.env.REACT_APP_BASE_URL;
 
 // ✅ Genres (Max 3)
 const GENRES = [

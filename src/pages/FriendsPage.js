@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/FriendsPage.css";
 
-const API_FRIENDS = "http://localhost:5000/api/friends";
+const API_FRIENDS = `${process.env.REACT_APP_BASE_URL}/api/friends`;
 
 function FriendsPage() {
     const [friends, setFriends] = useState([]);

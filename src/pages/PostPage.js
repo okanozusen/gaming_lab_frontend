@@ -3,9 +3,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "../styles/PostsPage.css";
 
-const API_POSTS = "http://localhost:5000/api/posts";
-const API_GAMES = "http://localhost:5000/api/games";
-const API_FRIENDS = "http://localhost:5000/api/friends";
+const API_POSTS = `${process.env.REACT_APP_BASE_URL}/api/posts`;
+const API_GAMES = `${process.env.REACT_APP_BASE_URL}/api/games`;
+const API_FRIENDS = `${process.env.REACT_APP_BASE_URL}/api/friends`;
 
 function PostsPage() {
     const { user } = useAuth();

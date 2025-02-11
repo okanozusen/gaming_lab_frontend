@@ -3,9 +3,10 @@ import "../styles/UserPage.css";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const API_POSTS = "http://localhost:5000/api/posts";
-const API_MESSAGES = "http://localhost:5000/api/messages";
-const API_USER = "http://localhost:5000/users";  // ✅ Fixed API base URL
+const API_POSTS = `${process.env.REACT_APP_BASE_URL}/api/posts`;
+const API_MESSAGES = `${process.env.REACT_APP_BASE_URL}/api/messages`;
+const API_USER = `${process.env.REACT_APP_BASE_URL}/api/users`; // Updated the path here as well
+
 
 const DEFAULT_BANNER = "https://picsum.photos/800/250";
 const DEFAULT_PROFILE_PIC = "https://picsum.photos/200";

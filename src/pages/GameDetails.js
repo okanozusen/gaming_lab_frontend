@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "../styles/GameDetails.css";
 
-const API_BASE_URL = "http://localhost:5000/api/games";
+const API_BASE_URL = process.env.REACT_APP_BASE_URL;
 
 const ESRB_LABELS = {
     1: "RP (Rating Pending)",

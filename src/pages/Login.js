@@ -3,13 +3,16 @@ import { useAuth } from "../contexts/AuthContext";  // ✅ Correct import
 import { useNavigate } from "react-router-dom";
 import '../styles/Auth.css';
 
-const API_LOGIN = "http://localhost:5000/api/auth/login";
-
 function Login() {
     const { login } = useAuth();  // ✅ Use login from AuthContext
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
+
+    // Use the environment variable for API URL
+    const API_LOGIN = process.env.REACT_APP_BASE_URL 
+        ? `${process.env.REACT_APP_BASE_URL}/api/auth/login` 
+        : "http://localhost:5000/api/auth/login";  // Fallback to localhost in development
 
     async function handleSubmit(event) {
         event.preventDefault();
