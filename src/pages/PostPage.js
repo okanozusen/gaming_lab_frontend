@@ -154,7 +154,7 @@ function PostsPage() {
     }
 
     async function handleAddFriend(friendUsername) {
-        if (!user || !friendUsername || friends[friendUsername] || friendUsername === user.username) return;
+        if (!user || !friendUsername || friendUsername === user.username) return;
     
         try {
             const token = localStorage.getItem("token");
@@ -172,12 +172,16 @@ function PostsPage() {
     
             const data = await response.json();
             if (data.success) {
-                setFriends((prev) => ({ ...prev, [friendUsername]: true })); // ✅ Update state instantly
+                setFriends((prev) => ({
+                    ...prev,
+                    [friendUsername]: true, // ✅ Immediately update state
+                }));
             }
         } catch (error) {
             console.error("🚨 Error adding friend:", error.message);
         }
     }
+    
     
     
     

@@ -39,7 +39,8 @@ function FriendsPage() {
                 {friends.length > 0 ? (
                     friends.map((friend, index) => (
                         <li key={index}>
-                            <Link to={`/users/${friend.username}`} className="friend-link">
+                           <Link to={`/friends/${friend.username}`} className="friend-link">
+
                                 <img src={friend.profile_pic || "https://placehold.co/50"} alt="Profile" className="friend-profile-pic" />
                                 {friend.username}
                             </Link>
