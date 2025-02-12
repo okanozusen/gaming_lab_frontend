@@ -25,15 +25,17 @@ function FriendProfile() {
         try {
             const response = await fetch(`${API_FRIENDS}/${username}`);
             const data = await response.json();
-            setProfilePic(data.profile_pic || profilePic);
+    
+            setProfilePic(data.profilePic || profilePic);
             setBanner(data.banner || banner);
-            setPlatforms(data.platforms || []);
-            setGenres(data.genres || []);
-            setPosts(data.posts || []);
+            setPlatforms(Array.isArray(data.platforms) ? data.platforms : []); // ✅ Ensure it's always an array
+            setGenres(Array.isArray(data.genres) ? data.genres : []); // ✅ Ensure it's always an array
+            setPosts(Array.isArray(data.posts) ? data.posts : []); // ✅ Ensure it's always an array
         } catch (error) {
             console.error("🚨 Error fetching friend profile:", error.message);
         }
     }
+    
 
     async function fetchFriendMessages() {
         try {
@@ -76,25 +78,45 @@ function FriendProfile() {
                 <h2 className="friend-username">{username}</h2>
 
                 <div className="friend-platforms">
-                    <h3>Gaming Platforms</h3>
-                    <ul>{platforms.length > 0 ? platforms.map((p, i) => <li key={i}>{p}</li>) : <p>No platforms selected.</p>}</ul>
-                </div>
+    <h3>Gaming Platforms</h3>
+    {platforms.length > 0 ? (
+        <ul>
+            {platforms.map((platform, index) => (
+                <li key={index} className="platform-tag">{platform}</li>
+            ))}
+        </ul>
+    ) : (
+        <p>No platforms selected.</p>
+    )}
+</div>
 
-                <div className="friend-genres">
-                    <h3>Favorite Genres</h3>
-                    <ul>{genres.length > 0 ? genres.map((g, i) => <li key={i}>{g}</li>) : <p>No favorite genres selected.</p>}</ul>
-                </div>
+<div className="friend-genres">
+    <h3>Favorite Genres</h3>
+    {genres.length > 0 ? (
+        <ul>
+            {genres.map((genre, index) => (
+                <li key={index} className="genre-tag">{genre}</li>
+            ))}
+        </ul>
+    ) : (
+        <p>No favorite genres selected.</p>
+    )}
+</div>
             </div>
 
-            <h2>Recent Posts</h2>
-            <div className="friend-posts-container">
-                {posts.length > 0 ? posts.map((post) => (
-                    <div key={post.id} className="friend-post">
-                        <strong>{post.username}</strong> <span className="game-title">({post.game_name || "Unknown Game"})</span>
-                        <p>{post.content}</p>
-                    </div>
-                )) : <p>No posts yet.</p>}
+            <h2>{username}'s Recent Posts</h2>
+<div className="friend-posts-container">
+    {posts.length > 0 ? (
+        posts.map((post) => (
+            <div key={post.id} className="friend-post">
+                <strong>{post.username}</strong> <span className="game-title">({post.game?.name || "Unknown Game"})</span>
+                <p>{post.content}</p>
             </div>
+        ))
+    ) : (
+        <p>No posts yet.</p>
+    )}
+</div>
 
             <h2>Message {username}</h2>
             <div className="message-container">
