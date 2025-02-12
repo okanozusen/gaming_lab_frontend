@@ -3,9 +3,12 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "../styles/PostsPage.css";
 
-const API_POSTS = `${process.env.REACT_APP_BASE_URL}/api/posts`;
-const API_GAMES = `${process.env.REACT_APP_BASE_URL}/api/games`;
-const API_FRIENDS = `${process.env.REACT_APP_BASE_URL}/api/friends`;
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://gaming-lab.onrender.com"; 
+
+const API_POSTS = `${API_BASE_URL}/api/posts`;
+const API_GAMES = `${API_BASE_URL}/api/games`;
+const API_FRIENDS = `${API_BASE_URL}/api/friends`;
+
 
 function PostsPage() {
     const { user } = useAuth();
