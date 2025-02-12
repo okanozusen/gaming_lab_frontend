@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "../styles/PostsPage.css";
+import { fetchFriends } from "./FriendsPage"; // ✅ Import function
 
 const API_POSTS = "https://gaming-lab.onrender.com/api/posts";
 const API_GAMES = "https://gaming-lab.onrender.com/api/games";
@@ -20,7 +21,9 @@ function PostsPage() {
 
     useEffect(() => {
         fetchPosts();
-    }, []);
+        if (user) fetchFriends();
+    }, [user]);
+    
 
     async function fetchPosts() {
         try {
@@ -151,7 +154,7 @@ function PostsPage() {
     }
 
     async function handleAddFriend(friendUsername) {
-        if (!user || !friendUsername || friends[friendUsername] || friendUsername === user.username) return;
+        if (!user || !friendUsername || friendUsername === user.username) return;
     
         try {
             const token = localStorage.getItem("token");
@@ -162,7 +165,7 @@ function PostsPage() {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    currentUser: user.username,
+                    currentUser: user.username, // ✅ Now user is defined
                     friendUsername,
                 }),
             });
@@ -170,13 +173,27 @@ function PostsPage() {
             const data = await response.json();
             if (data.success) {
                 console.log("✅ Friend Added:", friendUsername);
-                setFriends(prev => ({ ...prev, [friendUsername]: true }));
     
-                // ✅ Re-fetch the updated friends list
-                fetchFriends();
+                // ✅ Refresh the friends list
+                if (typeof fetchFriends === "function") {
+                    await fetchFriends(); // ✅ Fix "fetchFriends is not defined"
+                }
             }
         } catch (error) {
             console.error("🚨 Error adding friend:", error.message);
+        }
+    }
+    
+    async function fetchFriends() {
+        try {
+            const response = await fetch(`${API_FRIENDS}/list?username=${user.username}`);
+            if (!response.ok) throw new Error("Failed to fetch friends");
+    
+            const data = await response.json();
+            console.log("✅ Friends Fetched:", data);
+            setFriends(data.reduce((acc, friend) => ({ ...acc, [friend.username]: true }), {}));
+        } catch (error) {
+            console.error("🚨 Error fetching friends:", error.message);
         }
     }
     
