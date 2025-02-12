@@ -3,7 +3,7 @@ body {
     background-color: #121212;
     color: #ffffff;
     font-family: 'Arial', sans-serif;
-    padding-top: 70px; /* ✅ Pushes content down globally */
+    padding-top: 70px;
 }
 
 nav {
@@ -12,7 +12,7 @@ nav {
     width: 100%;
     background-color: #1f1f1f;
     z-index: 1000;
-    height: 60px; /* ✅ Ensure consistent navbar height */
+    height: 60px;
 }
 
 /* ✅ Ensure Posts Page Starts Below Navbar */
@@ -20,83 +20,10 @@ nav {
     width: 80%;
     margin: auto;
     padding: 20px;
-    margin-top: 20px; /* ✅ Pushes the posts section down */
-}
-
-/* ✅ Ensures the entire page starts below the navbar */
-.page-container {
-    padding-top: 20px;  /* ✅ Extra spacing */
-    margin-top: 90px; /* ✅ Ensures no overlap */
+    min-height: calc(100vh - 80px); /* ✅ Ensures full viewport height */
 }
 
 /* ✅ Ensures Post Form is Visible */
-.post-form {
-    background-color: #1f1f1f;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    margin-top: 10px; /* ✅ Push form down */
-}
-
-/* ✅ Ensures Posts Appear Below the Form */
-.posts-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 10px; /* ✅ Push down posts */
-}
-
-
-/* ✅ Top Banner (User, Hashtag, Add Friend) */
-.banner {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #1f1f1f;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-/* ✅ Left Banner - Profile */
-.left-banner {
-    display: flex;
-    align-items: center;
-}
-
-.profile-pic {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-/* ✅ Center Banner - Hashtag */
-.center-banner h2 {
-    font-size: 24px;
-    font-weight: bold;
-    color: #00aaff;
-    text-transform: uppercase;
-}
-
-/* ✅ Right Banner - Add Friend Button */
-.right-banner .add-friend-btn {
-    background-color: #00aaff;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.right-banner .add-friend-btn:hover {
-    background-color: #0088cc;
-}
-
-/* ✅ Post Form */
 .post-form {
     background-color: #1f1f1f;
     padding: 15px;
@@ -109,11 +36,12 @@ nav {
     height: 100px;
     background-color: #2a2a2a;
     color: white;
-    border: none;
+    border: 1px solid #333;
     padding: 10px;
     border-radius: 5px;
     resize: none;
-    font-size: 16px;
+    font-size: 18px;
+    line-height: 1.4;
 }
 
 .post-form button {
@@ -131,25 +59,6 @@ nav {
 
 .post-form button:hover {
     background-color: #0088cc;
-}
-
-/* ✅ Autofill Hashtag Suggestions */
-.hashtag-suggestions {
-    background-color: #1f1f1f;
-    border-radius: 5px;
-    margin-top: 5px;
-    padding: 10px;
-}
-
-.suggestion {
-    padding: 5px;
-    cursor: pointer;
-    color: #00aaff;
-    transition: 0.3s;
-}
-
-.suggestion:hover {
-    background-color: #2a2a2a;
 }
 
 /* ✅ Posts List */
@@ -182,7 +91,7 @@ nav {
 }
 
 .post-header .center {
-    flex: 1; /* Allows centering */
+    flex: 1; 
     text-align: center;
     display: flex;
     justify-content: center;
@@ -193,15 +102,16 @@ nav {
     color: #00aaff;
     font-size: 18px;
     cursor: pointer;
-    transition: 0.3s;
-    margin: 0; /* Ensure no margin shift */
+    transition: transform 0.2s ease-in-out, color 0.3s;
+    margin: 0;
 }
 
-
 .post-header .center h3:hover {
+    transform: scale(1.05);
     color: #0088cc;
 }
 
+/* ✅ Friend Button */
 .post-header .right .add-friend-btn {
     background-color: #00aaff;
     color: white;
@@ -212,6 +122,7 @@ nav {
     font-size: 14px;
     font-weight: bold;
     transition: 0.3s;
+    min-width: 100px; /* ✅ Ensures buttons stay aligned */
 }
 
 .post-header .right .add-friend-btn:hover {
@@ -224,8 +135,15 @@ nav {
     font-size: 16px;
 }
 
-/* ✅ Add Friend Button on Posts */
-.post-header button {
+/* ✅ Reply Button */
+.post-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.reply-button {
     background-color: #00aaff;
     color: white;
     border: none;
@@ -237,11 +155,56 @@ nav {
     transition: 0.3s;
 }
 
-.post-header button:hover {
+.reply-button:hover {
     background-color: #0088cc;
 }
 
-.friend-btn.right {
-    margin-left: auto;
-    float: right;
+/* ✅ Reply Section */
+.reply-section {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #1f1f1f;
+    border-radius: 5px;
+}
+
+.reply-section textarea {
+    width: 100%;
+    background-color: #2a2a2a;
+    color: white;
+    border: 1px solid #333;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 16px;
+    resize: none;
+}
+
+.submit-reply-button {
+    margin-top: 10px;
+    background-color: #00aaff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.submit-reply-button:hover {
+    background-color: #0088cc;
+}
+
+/* ✅ Replies Container */
+.replies-container {
+    margin-top: 10px;
+    padding-left: 10px;
+    border-left: 2px solid #444;
+}
+
+.reply {
+    background-color: #1a1a1a;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 5px;
 }

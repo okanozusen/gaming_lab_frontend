@@ -27,12 +27,16 @@ function GameDetails() {
     // Fetch game details from the API
     async function fetchGameDetails() {
         try {
+            console.log(`🔍 Fetching game details from: ${API_BASE_URL}/api/games/${id}`);
+            
             const response = await fetch(`${API_BASE_URL}/api/games/${id}`);
             if (!response.ok) throw new Error("Game not found");
+    
             const data = await response.json();
-
+            console.log("✅ Game Data Received:", data);  // <== LOG THE RESPONSE
+            
             let releaseYear = data.releaseYear || "Unknown";
-
+    
             if (!releaseYear || releaseYear === "Unknown") {
                 if (data.first_release_date) {
                     releaseYear = new Date(data.first_release_date * 1000).getFullYear();
@@ -41,10 +45,10 @@ function GameDetails() {
                     releaseYear = sortedDates[0].y || "Unknown";
                 }
             }
-
+    
             let validRatings = data.age_ratings?.map(a => a.category).filter(r => r >= 1 && r <= 7) || [];
             let highestRating = validRatings.length ? Math.max(...validRatings) : "Unknown";
-
+    
             setGame({
                 ...data,
                 releaseYear,
@@ -54,7 +58,7 @@ function GameDetails() {
             console.error("🚨 Error fetching game details:", error.message);
         }
     }
-
+    
     // Show loading message if game is not yet loaded
     if (!game) return <h2>Loading game details...</h2>;
 

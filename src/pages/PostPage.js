@@ -143,6 +143,7 @@ function PostsPage() {
                 )
             );
             setReplyContent((prev) => ({ ...prev, [postId]: "" }));
+            setShowReplyBox((prev) => ({ ...prev, [postId]: false })); // Hide the reply box after replying
         } catch (error) {
             console.error("🚨 Error posting reply:", error.message);
         }
@@ -177,7 +178,7 @@ function PostsPage() {
     return (
         <div className="posts-page">
             {user ? (
-                <form onSubmit={handlePostSubmit} className="post-form">
+                <form onSubmit={(e) => e.preventDefault()} className="post-form">
                     <div className="post-header">
                         <div className="left">
                             <img src={user.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
@@ -194,7 +195,7 @@ function PostsPage() {
                                     type="text"
                                     placeholder="Search for a game..."
                                     value={newPost}
-                                    onChange={handleGameSearch}
+                                    onChange={(e) => setNewPost(e.target.value)}
                                     className="game-search"
                                 />
                             )}
@@ -218,17 +219,6 @@ function PostsPage() {
                             )}
                         </div>
                     </div>
-
-                    <textarea
-                        value={newPost}
-                        onChange={(e) => setNewPost(e.target.value)}
-                        placeholder="Write your thoughts..."
-                        disabled={!selectedGame}
-                    />
-
-                    <button type="submit" disabled={!selectedGame || !newPost.trim()}>
-                        Post
-                    </button>
                 </form>
             ) : (
                 <p>Please log in to post.</p>
@@ -242,24 +232,64 @@ function PostsPage() {
                                 <img src={post.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
                                 <strong>{post.username}</strong>
                             </div>
+
                             <div className="center">
                                 <h3 
                                     className="game-title"
                                     style={{ cursor: post.game_id ? "pointer" : "default", color: post.game_id ? "#007bff" : "black" }} 
-                                    onClick={() => {
-                                        if (post.game_id && post.game_name !== "Unknown Game") {
-                                            navigate(`/game/${post.game_id}`);
-                                        } else {
-                                            console.warn("🚨 Game ID is missing or invalid, not navigating!");
-                                        }
-                                    }}
-                                    
+                                    onClick={() => post.game_id && navigate(`/game/${post.game_id}`)}
                                 >
                                     {post.game_name || "Unknown Game"}
                                 </h3>
                             </div>
+
+                            <div className="right">
+                                {user.username !== post.username && !friends[post.username] && (
+                                    <button 
+                                        className="add-friend-btn"
+                                        onClick={() => handleAddFriend(post.username)}
+                                    >
+                                        Add Friend
+                                    </button>
+                                )}
+                            </div>
                         </div>
+
                         <p>{post.content}</p>
+
+                        <div className="post-actions">
+                            <button 
+                                className="reply-button"
+                                onClick={() => setShowReplyBox((prev) => ({ ...prev, [post.id]: !prev[post.id] }))}
+                            >
+                                Reply
+                            </button>
+                        </div>
+
+                        {showReplyBox[post.id] && (
+                            <div className="reply-section">
+                                <textarea
+                                    value={replyContent[post.id] || ""}
+                                    onChange={(e) => setReplyContent({ ...replyContent, [post.id]: e.target.value })}
+                                    placeholder="Write a reply..."
+                                />
+                                <button 
+                                    className="submit-reply-button"
+                                    onClick={(e) => handleReplySubmit(e, post.id)}
+                                    disabled={!replyContent[post.id]?.trim()}
+                                >
+                                    Submit Reply
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="replies-container">
+                            {post.replies?.map((reply) => (
+                                <div key={reply.id} className="reply">
+                                    <strong>{reply.username}</strong>: {reply.content}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 ))}
             </div>
