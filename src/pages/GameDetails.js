@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "../styles/GameDetails.css";
 
-const API_GAMES = "https://gaming-lab.onrender.com/api/games"; // ✅ Define API_GAMES
+const API_GAMES = "https://gaming-lab.onrender.com/api/games"; // ✅ Correct API endpoint
 
 const ESRB_LABELS = {
     1: "RP (Rating Pending)",
@@ -17,6 +17,8 @@ const ESRB_LABELS = {
 function GameDetails() {
     const { id } = useParams();
     const [game, setGame] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (id) {
@@ -26,10 +28,13 @@ function GameDetails() {
 
     // ✅ Fetch game details properly by ID
     async function fetchGameDetails() {
+        setLoading(true);
+        setError(null);
+
         try {
             console.log(`🔍 Fetching game using ID: ${id}`);
 
-            // ✅ Fetch the game using direct ID endpoint
+            // ✅ Fetch the game using the direct ID endpoint
             const response = await fetch(`${API_GAMES}/${id}`);
             if (!response.ok) throw new Error("Game not found");
 
@@ -40,7 +45,7 @@ function GameDetails() {
                 throw new Error("Game data is empty");
             }
 
-            let releaseYear = data.first_release_date 
+            let releaseYear = data.first_release_date
                 ? new Date(data.first_release_date * 1000).getFullYear()
                 : "Unknown";
 
@@ -55,15 +60,25 @@ function GameDetails() {
 
         } catch (error) {
             console.error("🚨 Error fetching game details:", error.message);
+            setError(error.message);
+        } finally {
+            setLoading(false);
         }
     }
-    
-    // Show loading message if game is not yet loaded
-    if (!game) return <h2>Loading game details...</h2>;
+
+    // ✅ Show loading message while fetching
+    if (loading) return <h2>Loading game details...</h2>;
+
+    // ✅ Show error message if fetch fails
+    if (error) return <h2 style={{ color: "red" }}>🚨 {error}</h2>;
 
     return (
         <div className="game-details page-container">
-            <img src={game.cover?.url.replace("t_thumb", "t_original")} alt={game.name} className="game-cover small-cover" />
+            {game.cover ? (
+                <img src={game.cover.url.replace("t_thumb", "t_original")} alt={game.name} className="game-cover small-cover" />
+            ) : (
+                <div className="game-cover-placeholder">No Image Available</div>
+            )}
 
             <h1>{game.name}</h1>
             <p><strong>Release Year:</strong> {game.releaseYear}</p>
