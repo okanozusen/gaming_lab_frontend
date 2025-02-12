@@ -128,7 +128,7 @@ function PostsPage() {
             setPosts((prevPosts) =>
                 prevPosts.map((post) =>
                     post.id === postId
-                        ? { ...post, replies: [...(post.replies || []), responseData] }
+                        ? { ...post, replies: [responseData, ...(post.replies || [])] }
                         : post
                 )
             );
@@ -173,11 +173,6 @@ function PostsPage() {
                             <div className="left">
                                 <img src={post.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
                                 <strong>{post.username}</strong>
-                                {post.username !== user?.username && (
-                                    <button onClick={() => handleAddFriend(post.username)}>
-                                        {friends[post.username] ? "Friend Added" : "+ Add Friend"}
-                                    </button>
-                                )}
                             </div>
                         </div>
                         <p>{post.content}</p>
