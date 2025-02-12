@@ -45,19 +45,20 @@ function PostsPage() {
 
     async function handlePostSubmit(e) {
         e.preventDefault();
+        
         if (!user?.username || !newPost.trim() || !selectedGame) {
             console.error("🚨 Missing post details!");
             return;
         }
-
+    
         const post = {
             username: user.username,
             profilePic: user?.profilePic || "https://placehold.co/50",
             content: newPost.trim(),
-            game_id: selectedGame?.id || null,
-            game_name: selectedGame?.name || "Unknown Game",
+            game_id: selectedGame.id, // ✅ Ensure game_id is passed correctly
+            game_name: selectedGame.name || "Unknown Game", // ✅ Ensure game_name is always set
         };
-
+    
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(API_POSTS, {
@@ -68,21 +69,28 @@ function PostsPage() {
                 },
                 body: JSON.stringify(post),
             });
-
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to create post");
+            }
+    
             const responseData = await response.json();
-            if (!response.ok) throw new Error(responseData.error || "Failed to create post");
-
-            console.log("✅ Post submitted successfully!");
-            fetchPosts();
+            console.log("✅ Post submitted successfully!", responseData);
+    
+            // ✅ Update state: Add new post at the top and reset inputs
             setPosts((prevPosts) => [responseData, ...prevPosts]);
             setNewPost("");
             setSelectedGame(null);
             setGameSuggestions([]);
+    
+            // ✅ Re-fetch posts to ensure latest data is shown
+            fetchPosts();
         } catch (error) {
             console.error("🚨 Error posting:", error.message);
         }
     }
-
+    
     async function handleGameSearch(e) {
         const query = e.target.value.trim();
         setNewPost(query);
