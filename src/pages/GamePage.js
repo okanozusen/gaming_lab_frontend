@@ -6,7 +6,7 @@ const GENRES = [
     { id: 4, name: "Action" }, { id: 31, name: "Adventure" }, { id: 12, name: "RPG" },
     { id: 5, name: "Shooter" }, { id: 15, name: "Strategy" }, { id: 10, name: "Racing" },
     { id: 8, name: "Platform" }, { id: 2, name: "Point-and-click" }, { id: 13, name: "Simulator" },
-    { id: 25, name: "Hack and Slash" }
+    { id: 25, name: "Hack and Slash" }, { id: 14, name: "Sports" }
 ];
 
 const THEMES = [
@@ -76,7 +76,7 @@ function GamePage() {
     async function fetchGames(reset = false) {
         setLoading(true);
         try {
-            const url = new URL(`${process.env.REACT_APP_API_BASE_URL}/search`);
+            const url = new URL(`${process.env.REACT_APP_API_BASE_URL}/games`); // Corrected the API endpoint
             if (query) url.searchParams.append("search", query);
             if (selectedGenres.length) url.searchParams.append("genres", selectedGenres.join(","));
             if (selectedThemes.length) url.searchParams.append("themes", selectedThemes.join(","));
