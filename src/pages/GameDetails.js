@@ -27,18 +27,22 @@ function GameDetails() {
     // Fetch game details from the API
     async function fetchGameDetails() {
         try {
-            console.log(`🔍 Fetching game using ID: ${id}`);
+            console.log(`🔍 Searching for game using ID: ${id}`);
     
-            // Step 1: Fetch game details using the correct API endpoint
-            let response = await fetch(`${API_BASE_URL}/api/games/${id}`);
-            if (!response.ok) throw new Error(`Game not found (Status: ${response.status})`);
+            // Fetch the game **using the same API endpoint as GamePage**
+            const response = await fetch(`${API_GAMES}?search=${id}`);
+            if (!response.ok) throw new Error("Game search failed");
     
-            let gameData = await response.json();
-            console.log("✅ Game Data Received:", gameData);  // Debugging log
+            const data = await response.json();
+            console.log("✅ Game Data Received:", data);
     
-            if (!gameData || !gameData.name) throw new Error("Invalid game data received");
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error("Game not found");
+            }
     
-            // Step 2: Handle release year logic
+            // Get the first matching game
+            const gameData = data[0];
+    
             let releaseYear = gameData.first_release_date 
                 ? new Date(gameData.first_release_date * 1000).getFullYear()
                 : "Unknown";
@@ -46,16 +50,17 @@ function GameDetails() {
             let validRatings = gameData.age_ratings?.map(a => a.category).filter(r => r >= 1 && r <= 7) || [];
             let highestRating = validRatings.length ? Math.max(...validRatings) : "Unknown";
     
-            // Step 3: Update the game state
             setGame({
                 ...gameData,
                 releaseYear,
                 esrbRating: ESRB_LABELS[highestRating] || "Unknown",
             });
+    
         } catch (error) {
             console.error("🚨 Error fetching game details:", error.message);
         }
     }
+    
     // Show loading message if game is not yet loaded
     if (!game) return <h2>Loading game details...</h2>;
 
