@@ -186,6 +186,27 @@ function UserPage() {
                     </div>
                 </div>
 
+                <div className="genre-section">
+    <label>Top 5 Favorite Genres:</label>
+    <select onChange={(e) => {
+        if (favoriteGenres.length < 5 && !favoriteGenres.includes(e.target.value)) {
+            setFavoriteGenres([...favoriteGenres, e.target.value]);
+        }
+    }}>
+        <option value="">Select Genre</option>
+        {GENRES.map((genre, index) => (
+            <option key={index} value={genre}>{genre}</option>
+        ))}
+    </select>
+    <div className="selected-genres">
+        {favoriteGenres.map((genre, index) => (
+            <span key={index} className="genre-tag">
+                {genre} <button onClick={() => setFavoriteGenres(favoriteGenres.filter(g => g !== genre))}>❌</button>
+            </span>
+        ))}
+    </div>
+</div>
+
                 <div className="gaming-preferences">
                     <div className="platform-section">
                         <label>Preferred Platforms:</label>
