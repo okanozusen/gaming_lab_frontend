@@ -154,7 +154,7 @@ function PostsPage() {
     }
 
     async function handleAddFriend(friendUsername) {
-        if (!user || !friendUsername || friendUsername === user.username) return;
+        if (!user || !friendUsername || friends[friendUsername] || friendUsername === user.username) return;
     
         try {
             const token = localStorage.getItem("token");
@@ -165,24 +165,21 @@ function PostsPage() {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    currentUser: user.username, // ✅ Now user is defined
+                    currentUser: user.username,
                     friendUsername,
                 }),
             });
     
             const data = await response.json();
             if (data.success) {
-                console.log("✅ Friend Added:", friendUsername);
-    
-                // ✅ Refresh the friends list
-                if (typeof fetchFriends === "function") {
-                    await fetchFriends(); // ✅ Fix "fetchFriends is not defined"
-                }
+                setFriends((prev) => ({ ...prev, [friendUsername]: true })); // ✅ Update state instantly
             }
         } catch (error) {
             console.error("🚨 Error adding friend:", error.message);
         }
     }
+    
+    
     
     async function fetchFriends() {
         try {
@@ -282,15 +279,20 @@ function PostsPage() {
                             </div>
     
                             <div className="right">
-                                {user.username !== post.username && !friends[post.username] && (
-                                    <button 
-                                        className="add-friend-btn"
-                                        onClick={() => handleAddFriend(post.username)}
-                                    >
-                                        Add Friend
-                                    </button>
-                                )}
-                            </div>
+    {user.username !== post.username && (
+        friends[post.username] ? (
+            <span className="friend-badge">Friend</span> // ✅ Show "Friend" if already added
+        ) : (
+            <button 
+                className="add-friend-btn"
+                onClick={() => handleAddFriend(post.username)}
+            >
+                Add Friend
+            </button>
+        )
+    )}
+</div>
+
                         </div>
     
                         <p>{post.content}</p>
