@@ -1,43 +1,44 @@
 import React, { useState } from "react";
-import { useAuth } from "../contexts/AuthContext";  // ✅ Correct import
+import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import '../styles/Auth.css';
 
 function Login() {
-    const { login } = useAuth();  // ✅ Use login from AuthContext
+    const { login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const navigate = useNavigate();
 
-    // ✅ Corrected API Base URL
-    const API_LOGIN = process.env.REACT_APP_BASE_URL 
-        ? `${process.env.REACT_APP_BASE_URL}/api/auth/login` 
-        : "https://gaming-lab-api.onrender.com/api/auth/login";  // Use Render backend URL
-
+    // ✅ Correct API URL
+    const API_BASE_URL = process.env.REACT_APP_BASE_URL || "https://gaming-lab.onrender.com";
+    const API_LOGIN = `${API_BASE_URL}/api/auth/login`;
+    
     async function handleSubmit(event) {
         event.preventDefault();
         try {
-            const response = await fetch(API_LOGIN, {
+            const response = await fetch(`${API_LOGIN}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             });
 
+            // ✅ Check if response is HTML instead of JSON
+            const textResponse = await response.text();
             if (!response.ok) {
-                const errorMsg = await response.json();
-                throw new Error(errorMsg.message || "Login failed");
+                console.error("🚨 Server Error Response:", textResponse);
+                throw new Error("Login failed. Please check your credentials.");
             }
 
-            const data = await response.json();
-            console.log("✅ Login API Response:", data);
-
+            // ✅ Convert text response to JSON
+            const data = JSON.parse(textResponse);
             if (!data.user || !data.token) {
                 throw new Error("Invalid login response from server.");
             }
 
-            localStorage.setItem("token", data.token);  // ✅ Store token
+            localStorage.setItem("token", data.token);
 
-            // ✅ Define userData correctly using `data.user`
+            // ✅ Define userData correctly
             const userData = { 
                 id: data.user.id, 
                 username: data.user.username, 
@@ -46,12 +47,12 @@ function Login() {
                 banner: data.user.banner || "https://picsum.photos/800/250"
             };
 
-            login(userData, data.token);  // ✅ Update user and store token
-
+            login(userData, data.token);
             console.log("✅ User stored in context:", userData);
-            navigate("/users"); // ✅ Redirect after login
+            navigate("/users");
         } catch (error) {
             console.error("🚨 Login Error:", error.message);
+            setError(error.message);
         }
     }
 
@@ -73,6 +74,7 @@ function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
+                {error && <p className="error">{error}</p>}
                 <button type="submit">Login</button>
             </form>
         </div>

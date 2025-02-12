@@ -15,39 +15,39 @@ function Register() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const isValidPassword = (password) => {
-        return /^(?=.*[A-Z])(?=.*[\W_]).{8,}$/.test(password);
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
     
         try {
-            // Log to check the data being sent
             console.log("🔍 Sending Registration Request:", formData);
             
-            // Use the environment variable to determine the API base URL
-            const API_BASE_URL = "https://gaming-lab.onrender.com/api/games"; 
-            const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+            // ✅ Corrected API URL for registering users
+            const API_BASE_URL = process.env.REACT_APP_BASE_URL || "https://gaming-lab.onrender.com";
+const API_REGISTER = `${API_BASE_URL}/api/auth/register`;
+
+const response = await fetch(API_REGISTER, {
+
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             });
-    
+
+            // ✅ Check if response is HTML instead of JSON
+            const textResponse = await response.text();
             if (!response.ok) {
-                const errorMsg = await response.json();
-                throw new Error(errorMsg.message || "Registration failed");
+                console.error("🚨 Server Error Response:", textResponse);
+                throw new Error("Registration failed. Please try again.");
             }
-    
-            const data = await response.json();
+
+            // ✅ Convert text response to JSON
+            const data = JSON.parse(textResponse);
             console.log("✅ Registration Success:", data);
             navigate("/login");
         } catch (error) {
             console.error("🚨 Registration Error:", error.message);
-            setError(error.message);  // Update state to show error message on the UI
+            setError(error.message);
         }
     };
-    
 
     return (
         <div className="auth-container">
