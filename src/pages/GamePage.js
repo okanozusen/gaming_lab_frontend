@@ -2,9 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import "../styles/GamePage.css";
 
-const API_BASE_URL = process.env.REACT_APP_BASE_URL;
-
-// ✅ Genres (Max 3)
 const GENRES = [
     { id: 4, name: "Action" }, { id: 31, name: "Adventure" }, { id: 12, name: "RPG" },
     { id: 5, name: "Shooter" }, { id: 15, name: "Strategy" }, { id: 10, name: "Racing" },
@@ -12,14 +9,12 @@ const GENRES = [
     { id: 25, name: "Hack and Slash" }
 ];
 
-// ✅ Themes (Max 2)
 const THEMES = [
     { id: 17, name: "Fantasy" }, { id: 18, name: "Science Fiction" }, { id: 19, name: "Horror" },
     { id: 21, name: "Survival" }, { id: 22, name: "Historical" }, { id: 23, name: "Stealth" },
     { id: 38, name: "Open World" }
 ];
 
-// ✅ Platforms
 const PLATFORMS = [
     { id: 6, name: "PC" }, { id: 167, name: "PlayStation 5" }, { id: 48, name: "PlayStation 4" },
     { id: 9, name: "PlayStation 3" }, { id: 8, name: "PlayStation 2" }, { id: 7, name: "PlayStation 1" },
@@ -28,14 +23,12 @@ const PLATFORMS = [
     { id: 5, name: "Wii" }, { id: 41, name: "Wii U" }
 ];
 
-// ✅ ESRB Ratings
 const ESRB_RATINGS = [
     { id: 1, name: "RP (Rating Pending)" }, { id: 2, name: "EC (Early Childhood)" },
     { id: 3, name: "E (Everyone)" }, { id: 4, name: "E10+ (Everyone 10+)" },
     { id: 5, name: "T (Teen)" }, { id: 6, name: "M (Mature)" }, { id: 7, name: "AO (Adults Only)" }
 ];
 
-// ✅ Game Modes
 const GAME_MODES = [
     { id: 1, name: "Singleplayer" }, { id: 2, name: "Multiplayer" }
 ];
@@ -83,7 +76,7 @@ function GamePage() {
     async function fetchGames(reset = false) {
         setLoading(true);
         try {
-            const url = new URL(`${API_BASE_URL}/search`);
+            const url = new URL(`${process.env.REACT_APP_API_BASE_URL}/search`);
             if (query) url.searchParams.append("search", query);
             if (selectedGenres.length) url.searchParams.append("genres", selectedGenres.join(","));
             if (selectedThemes.length) url.searchParams.append("themes", selectedThemes.join(","));
