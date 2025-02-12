@@ -9,10 +9,10 @@ function Login() {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    // Use the environment variable for API URL
+    // ✅ Corrected API Base URL
     const API_LOGIN = process.env.REACT_APP_BASE_URL 
         ? `${process.env.REACT_APP_BASE_URL}/api/auth/login` 
-        : "http://localhost:5000/api/auth/login";  // Fallback to localhost in development
+        : "https://gaming-lab-api.onrender.com/api/auth/login";  // Use Render backend URL
 
     async function handleSubmit(event) {
         event.preventDefault();
@@ -23,9 +23,12 @@ function Login() {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || "Login failed");
+            if (!response.ok) {
+                const errorMsg = await response.json();
+                throw new Error(errorMsg.message || "Login failed");
+            }
 
+            const data = await response.json();
             console.log("✅ Login API Response:", data);
 
             if (!data.user || !data.token) {

@@ -27,7 +27,7 @@ function Register() {
             console.log("🔍 Sending Registration Request:", formData);
             
             // Use the environment variable to determine the API base URL
-            const API_BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+            const API_BASE_URL = "https://gaming-lab.onrender.com/api/games"; 
             const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
