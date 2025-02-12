@@ -16,7 +16,6 @@ function PostsPage() {
     const [gameSuggestions, setGameSuggestions] = useState([]);
     const [replyContent, setReplyContent] = useState({});
     const [showReplyBox, setShowReplyBox] = useState({});
-
     const [friends, setFriends] = useState({});
 
     useEffect(() => {
@@ -176,11 +175,13 @@ function PostsPage() {
             console.error("🚨 Error adding friend:", error.message);
         }
     }
+    
 
     return (
         <div className="posts-page">
             {user ? (
-                <form onSubmit={(e) => e.preventDefault()} className="post-form">
+                <form onSubmit={handlePostSubmit} className="post-form">
+
                     <div className="post-header">
                         <div className="left">
                             <img src={user.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
