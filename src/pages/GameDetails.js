@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "../styles/GameDetails.css";
 
-const API_GAMES = "https://gaming-lab.onrender.com/api/games";  // ✅ Add API_GAMES here
+const API_GAMES = "https://gaming-lab.onrender.com/api/games"; // ✅ Define API_GAMES
 
 const ESRB_LABELS = {
     1: "RP (Rating Pending)",
@@ -24,34 +24,31 @@ function GameDetails() {
         }
     }, [id]);
 
-    // Fetch game details from the API
+    // ✅ Fetch game details properly by ID
     async function fetchGameDetails() {
         try {
-            console.log(`🔍 Searching for game using ID: ${id}`);
+            console.log(`🔍 Fetching game using ID: ${id}`);
 
-            // Fetch the game **using the same API endpoint as GamePage**
-            const response = await fetch(`${API_GAMES}?search=${id}`);
-            if (!response.ok) throw new Error("Game search failed");
+            // ✅ Fetch the game using direct ID endpoint
+            const response = await fetch(`${API_GAMES}/${id}`);
+            if (!response.ok) throw new Error("Game not found");
 
             const data = await response.json();
             console.log("✅ Game Data Received:", data);
 
-            if (!Array.isArray(data) || data.length === 0) {
-                throw new Error("Game not found");
+            if (!data || Object.keys(data).length === 0) {
+                throw new Error("Game data is empty");
             }
 
-            // Get the first matching game
-            const gameData = data[0];
-
-            let releaseYear = gameData.first_release_date 
-                ? new Date(gameData.first_release_date * 1000).getFullYear()
+            let releaseYear = data.first_release_date 
+                ? new Date(data.first_release_date * 1000).getFullYear()
                 : "Unknown";
 
-            let validRatings = gameData.age_ratings?.map(a => a.category).filter(r => r >= 1 && r <= 7) || [];
+            let validRatings = data.age_ratings?.map(a => a.category).filter(r => r >= 1 && r <= 7) || [];
             let highestRating = validRatings.length ? Math.max(...validRatings) : "Unknown";
 
             setGame({
-                ...gameData,
+                ...data,
                 releaseYear,
                 esrbRating: ESRB_LABELS[highestRating] || "Unknown",
             });
