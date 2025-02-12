@@ -27,30 +27,35 @@ function GameDetails() {
     // Fetch game details from the API
     async function fetchGameDetails() {
         try {
-            console.log(`🔍 Fetching game details from: ${API_BASE_URL}/api/games/${id}`);
-            
-            const response = await fetch(`${API_BASE_URL}/api/games/${id}`);
+            console.log(`🔍 Searching for game ID: ${id}`);
+    
+            // Use the search endpoint to fetch similar games
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/games?search=${id}`);
             if (!response.ok) throw new Error("Game not found");
     
             const data = await response.json();
-            console.log("✅ Game Data Received:", data);  // <== LOG THE RESPONSE
-            
-            let releaseYear = data.releaseYear || "Unknown";
+            console.log("✅ Game Data Received:", data); // Log data for debugging
+    
+            // Find the exact game ID inside the search results
+            const gameData = data.find(game => game.id.toString() === id);
+    
+            if (!gameData) {
+                throw new Error("Game not found in search results");
+            }
+    
+            let releaseYear = gameData.releaseYear || "Unknown";
     
             if (!releaseYear || releaseYear === "Unknown") {
-                if (data.first_release_date) {
-                    releaseYear = new Date(data.first_release_date * 1000).getFullYear();
-                } else if (data.release_dates?.length > 0) {
-                    const sortedDates = data.release_dates.sort((a, b) => a.y - b.y);
-                    releaseYear = sortedDates[0].y || "Unknown";
+                if (gameData.first_release_date) {
+                    releaseYear = new Date(gameData.first_release_date * 1000).getFullYear();
                 }
             }
     
-            let validRatings = data.age_ratings?.map(a => a.category).filter(r => r >= 1 && r <= 7) || [];
+            let validRatings = gameData.age_ratings?.map(a => a.category).filter(r => r >= 1 && r <= 7) || [];
             let highestRating = validRatings.length ? Math.max(...validRatings) : "Unknown";
     
             setGame({
-                ...data,
+                ...gameData,
                 releaseYear,
                 esrbRating: ESRB_LABELS[highestRating] || "Unknown",
             });
@@ -58,6 +63,7 @@ function GameDetails() {
             console.error("🚨 Error fetching game details:", error.message);
         }
     }
+    
     
     // Show loading message if game is not yet loaded
     if (!game) return <h2>Loading game details...</h2>;
