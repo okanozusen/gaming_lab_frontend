@@ -15,6 +15,7 @@ function PostsPage() {
     const [selectedGame, setSelectedGame] = useState(null);
     const [gameSuggestions, setGameSuggestions] = useState([]);
     const [replyContent, setReplyContent] = useState({});
+    const [showReplyBox, setShowReplyBox] = useState({});
     const [friends, setFriends] = useState({});
 
     useEffect(() => {
