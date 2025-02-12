@@ -27,7 +27,7 @@ function GameDetails() {
     // Fetch game details from the API
     async function fetchGameDetails() {
         try {
-            const response = await fetch(`${API_BASE_URL}/${id}`);
+            const response = await fetch(`${API_BASE_URL}/api/games/${id}`);
             if (!response.ok) throw new Error("Game not found");
             const data = await response.json();
 

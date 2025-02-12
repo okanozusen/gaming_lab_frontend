@@ -246,7 +246,14 @@ function PostsPage() {
                                 <h3 
                                     className="game-title"
                                     style={{ cursor: post.game_id ? "pointer" : "default", color: post.game_id ? "#007bff" : "black" }} 
-                                    onClick={() => post.game_id && navigate(`/game/${post.game_id}`)}
+                                    onClick={() => {
+                                        if (post.game_id && post.game_name !== "Unknown Game") {
+                                            navigate(`/game/${post.game_id}`);
+                                        } else {
+                                            console.warn("🚨 Game ID is missing or invalid, not navigating!");
+                                        }
+                                    }}
+                                    
                                 >
                                     {post.game_name || "Unknown Game"}
                                 </h3>
