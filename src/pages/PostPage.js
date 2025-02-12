@@ -175,6 +175,7 @@ function PostsPage() {
             console.error("🚨 Error adding friend:", error.message);
         }
     }
+    
 
     return (
         <div className="posts-page">

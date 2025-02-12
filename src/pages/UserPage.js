@@ -37,7 +37,8 @@ function UserPage() {
 
     async function fetchUserData(username) {
         try {
-            const response = await fetch(`http://localhost:5000/api/users/${username}`); // ✅ Fixed API route
+            const response = await fetch(`${API_USER}/${username}`);
+ // ✅ Fixed API route
             if (!response.ok) throw new Error(`Error: ${response.status}`);
             const data = await response.json();
             setProfilePic(data.profile_pic || DEFAULT_PROFILE_PIC);
@@ -51,15 +52,12 @@ function UserPage() {
     
     async function fetchUserPosts(username) {
         try {
-            const response = await fetch(`${API_POSTS}?username=${username}`);
+            const response = await fetch(`${API_POSTS}/user/${username}`); // Use new API route
             if (!response.ok) throw new Error(`Error: ${response.status}`);
     
             const data = await response.json();
-            if (!Array.isArray(data)) throw new Error("Invalid response format");
-    
             console.log("✅ User's Recent Posts:", data);
-    
-            setPosts(data.filter(post => post.username === username)); // ✅ Show only logged-in user's posts
+            setPosts(data);
         } catch (error) {
             console.error("🚨 Error fetching user posts:", error.message);
         }
@@ -119,11 +117,50 @@ function UserPage() {
         }
     }
 
-    function handleProfilePicChange(event) {
-        const newProfilePic = event.target.value;
-        setProfilePic(newProfilePic);
+    async function handleProfilePicUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+    
+        const formData = new FormData();
+        formData.append("profilePic", file);
+        formData.append("username", user.username);
+    
+        try {
+            const response = await fetch(`${API_USER}/upload-profile-pic`, {
+                method: "POST",
+                body: formData,
+            });
+    
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Failed to upload profile picture");
+    
+            setProfilePic(`data:image/png;base64,${data.profilePic}`); // Set new image
+        } catch (error) {
+            console.error("🚨 Error uploading profile picture:", error.message);
+        }
     }
-
+    
+    async function savePreferences() {
+        try {
+            const response = await fetch(`${API_USER}/update-preferences`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: user.username,
+                    platforms: selectedPlatforms,
+                    genres: favoriteGenres,
+                }),
+            });
+    
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Failed to save preferences");
+    
+            console.log("✅ Preferences saved:", data);
+        } catch (error) {
+            console.error("🚨 Error saving preferences:", error.message);
+        }
+    }
+    
     function handlePlatformChange(e) {
         const selectedPlatform = e.target.value;
         if (!selectedPlatforms.includes(selectedPlatform)) {
@@ -152,18 +189,19 @@ function UserPage() {
                 <div className="banner-container" style={{ backgroundImage: `url(${banner})` }}>
                     <label className="edit-banner-btn">
                         Edit Banner
-                        <input type="file" accept="image/*" />
+                        <input type="file" accept="image/*" onChange={handleProfilePicUpload} />
                     </label>
 
                     <div className="profile-container">
                         <div className="profile-pic-section">
                             <img src={profilePic} alt="Profile" className="profile-pic" />
                             <input
-                                type="text"
-                                placeholder="Profile Picture URL"
-                                value={profilePic}
-                                onChange={handleProfilePicChange}
-                            />
+    type="text"
+    placeholder="Profile Picture URL"
+    value={profilePic}
+    onChange={(e) => setProfilePic(e.target.value)} // ✅ Fix
+/>
+
                         </div>
 
                         <div className="username-section">
