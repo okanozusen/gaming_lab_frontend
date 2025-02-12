@@ -195,11 +195,12 @@ function PostsPage() {
                             ) : (
                                 <input
     type="text"
-    placeholder="Search for a game..."
+    placeholder="What's on your mind?"
     value={newPost}
-    onChange={handleGameSearch}  // ✅ FIX: Use the function here
-    className="game-search"
+    onChange={(e) => setNewPost(e.target.value)}  // ✅ Restore typing functionality
+    className="post-input"
 />
+
 
                             )}
 
