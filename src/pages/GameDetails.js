@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "../styles/GameDetails.css";
 
-const API_BASE_URL = process.env.REACT_APP_BASE_URL;
+const API_GAMES = "https://gaming-lab.onrender.com/api/games";  // ✅ Add API_GAMES here
 
 const ESRB_LABELS = {
     1: "RP (Rating Pending)",
@@ -28,34 +28,34 @@ function GameDetails() {
     async function fetchGameDetails() {
         try {
             console.log(`🔍 Searching for game using ID: ${id}`);
-    
+
             // Fetch the game **using the same API endpoint as GamePage**
             const response = await fetch(`${API_GAMES}?search=${id}`);
             if (!response.ok) throw new Error("Game search failed");
-    
+
             const data = await response.json();
             console.log("✅ Game Data Received:", data);
-    
+
             if (!Array.isArray(data) || data.length === 0) {
                 throw new Error("Game not found");
             }
-    
+
             // Get the first matching game
             const gameData = data[0];
-    
+
             let releaseYear = gameData.first_release_date 
                 ? new Date(gameData.first_release_date * 1000).getFullYear()
                 : "Unknown";
-    
+
             let validRatings = gameData.age_ratings?.map(a => a.category).filter(r => r >= 1 && r <= 7) || [];
             let highestRating = validRatings.length ? Math.max(...validRatings) : "Unknown";
-    
+
             setGame({
                 ...gameData,
                 releaseYear,
                 esrbRating: ESRB_LABELS[highestRating] || "Unknown",
             });
-    
+
         } catch (error) {
             console.error("🚨 Error fetching game details:", error.message);
         }
