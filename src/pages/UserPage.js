@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 const API_USER = "https://gaming-lab.onrender.com/api/users";
 const API_POSTS = "https://gaming-lab.onrender.com/api/posts";
+const API_MESSAGES = "https://gaming-lab.onrender.com/api/messages";
 
 const DEFAULT_BANNER = "https://picsum.photos/800/250";
 const DEFAULT_PROFILE_PIC = "https://picsum.photos/200";
@@ -13,6 +14,8 @@ const GENRES = ["Action", "RPG", "Shooter", "Horror", "Adventure", "Sports", "St
 
 function UserPage() {
     const { user, setUser } = useAuth();
+    const navigate = useNavigate();
+
     const [posts, setPosts] = useState([]);
     const [banner, setBanner] = useState(DEFAULT_BANNER);
     const [profilePic, setProfilePic] = useState(DEFAULT_PROFILE_PIC);
@@ -20,11 +23,16 @@ function UserPage() {
     const [favoriteGenres, setFavoriteGenres] = useState([]);
     const [newUsername, setNewUsername] = useState(user?.username || "");
     const [editMode, setEditMode] = useState(false);
+    const [conversations, setConversations] = useState({}); // Messages grouped by sender
+    const [selectedSender, setSelectedSender] = useState(null); // Active chat
+    const [replyMessage, setReplyMessage] = useState("");
+
 
     useEffect(() => {
         if (user && user.username) {
             fetchUserData(user.username);
             fetchUserPosts(user.username);
+            fetchUserMessages();
         }
     }, [user]);
 
@@ -150,6 +158,62 @@ function UserPage() {
         }
     }
 
+    async function fetchUserMessages() {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${API_MESSAGES}/${user.username}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+
+            const data = await response.json();
+
+            // ✅ Group messages by sender
+            const groupedMessages = data.reduce((acc, msg) => {
+                if (!acc[msg.sender]) {
+                    acc[msg.sender] = [];
+                }
+                acc[msg.sender].push(msg);
+                return acc;
+            }, {});
+
+            setConversations(groupedMessages);
+        } catch (error) {
+            console.error("🚨 Error fetching messages:", error.message);
+        }
+    }
+
+    async function handleReplyMessage(receiver) {
+        if (!replyMessage.trim()) return;
+
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${API_MESSAGES}/${receiver}/message`, {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ sender: user.username, message: replyMessage })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`Server Response: ${errorData}`);
+            }
+
+            setConversations({
+                ...conversations,
+                [receiver]: [...(conversations[receiver] || []), { sender: user.username, receiver, content: replyMessage }]
+            });
+
+            setReplyMessage("");
+        } catch (error) {
+            console.error("🚨 Error sending reply:", error.message);
+        }
+    }
+
     return (
         <div className="page-container">
             <div className="user-page">
@@ -235,6 +299,51 @@ function UserPage() {
                         </div>
                     ))}
                 </div>
+
+                <h2>{user.username}'s Messages</h2>
+
+{/* ✅ Display list of senders */}
+<div className="message-senders">
+    {Object.keys(conversations).length > 0 ? (
+        Object.keys(conversations).map((sender, index) => (
+            <button 
+                key={index} 
+                className={`sender-button ${selectedSender === sender ? "active" : ""}`} 
+                onClick={() => setSelectedSender(sender)}
+            >
+                {sender}
+            </button>
+        ))
+    ) : (
+        <p>No messages yet.</p>
+    )}
+</div>
+
+{/* ✅ Display chat with selected sender */}
+{selectedSender && (
+    <div className="chat-container">
+        <h3>Chat with {selectedSender}</h3>
+        <div className="chat-history">
+            {conversations[selectedSender].map((msg, index) => (
+                <div key={index} className="message">
+                    <strong>{msg.sender}:</strong> {msg.content}
+                </div>
+            ))}
+        </div>
+
+        {/* ✅ Reply input */}
+        <div className="reply-section">
+            <input 
+                type="text"
+                placeholder="Reply..."
+                value={replyMessage}
+                onChange={(e) => setReplyMessage(e.target.value)}
+            />
+            <button onClick={() => handleReplyMessage(selectedSender)}>Send</button>
+        </div>
+    </div>
+)}
+
             </div>
         </div>
     );
