@@ -27,29 +27,36 @@ function GameDetails() {
     // Fetch game details from the API
     async function fetchGameDetails() {
         try {
-            console.log(`🔍 Searching for game ID: ${id}`);
+            console.log(`🔍 Searching for game using ID: ${id}`);
     
-            // Use the search endpoint to fetch similar games
-            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/games?search=${id}`);
-            if (!response.ok) throw new Error("Game not found");
+            // Step 1: Try searching by ID first
+            let response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/games?search=${id}`);
+            if (!response.ok) throw new Error("Game search failed");
     
-            const data = await response.json();
-            console.log("✅ Game Data Received:", data); // Log data for debugging
+            let data = await response.json();
+            console.log("✅ Game Data Received:", data);  // Debug log
     
-            // Find the exact game ID inside the search results
-            const gameData = data.find(game => game.id.toString() === id);
+            // Step 2: If search results don't contain the exact game, try a name search
+            let gameData = data.find(game => game.id.toString() === id);
     
-            if (!gameData) {
-                throw new Error("Game not found in search results");
-            }
-    
-            let releaseYear = gameData.releaseYear || "Unknown";
-    
-            if (!releaseYear || releaseYear === "Unknown") {
-                if (gameData.first_release_date) {
-                    releaseYear = new Date(gameData.first_release_date * 1000).getFullYear();
+            // Step 3: If the game is still not found, try searching by name (if we have it)
+            if (!gameData && data.length > 0) {
+                console.log("🔄 Trying to find the game by name instead...");
+                const gameName = data[0].name; // Get first game's name
+                response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/games?search=${encodeURIComponent(gameName)}`);
+                if (response.ok) {
+                    let newData = await response.json();
+                    gameData = newData.find(game => game.name.toLowerCase() === gameName.toLowerCase());
                 }
             }
+    
+            if (!gameData) throw new Error("Game not found in search results");
+    
+            console.log("✅ Final Selected Game:", gameData);
+    
+            let releaseYear = gameData.first_release_date 
+                ? new Date(gameData.first_release_date * 1000).getFullYear()
+                : "Unknown";
     
             let validRatings = gameData.age_ratings?.map(a => a.category).filter(r => r >= 1 && r <= 7) || [];
             let highestRating = validRatings.length ? Math.max(...validRatings) : "Unknown";
@@ -63,7 +70,6 @@ function GameDetails() {
             console.error("🚨 Error fetching game details:", error.message);
         }
     }
-    
     
     // Show loading message if game is not yet loaded
     if (!game) return <h2>Loading game details...</h2>;
