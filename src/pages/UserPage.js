@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../styles/UserPage.css";
 import { useAuth } from "../contexts/AuthContext";
 
+
 const API_USER = "https://gaming-lab.onrender.com/api/users";
 const API_POSTS = "https://gaming-lab.onrender.com/api/posts";
 const API_MESSAGES = "https://gaming-lab.onrender.com/api/messages";
@@ -34,7 +35,8 @@ function UserPage() {
             fetchUserPosts(user.username);
             fetchUserMessages();
         }
-    }, [user]);
+    }, [user]); // ✅ Makes sure it runs when `user` changes
+    
 
     async function fetchUserData(username) {
         try {
@@ -53,15 +55,16 @@ function UserPage() {
 
     async function fetchUserPosts(username) {
         try {
-            const response = await fetch(`${API_USER}/${username}/posts`);
+            const response = await fetch(`${API_POSTS}?username=${username}`);
             if (!response.ok) throw new Error(`Error: ${response.status}`);
-
+    
             const data = await response.json();
             setPosts(data);
         } catch (error) {
             console.error("🚨 Error fetching user posts:", error.message);
         }
     }
+    
 
     async function handleProfilePicUpload(event) {
         const file = event.target.files[0];
@@ -138,25 +141,33 @@ function UserPage() {
     }
 
     async function savePreferences() {
+        if (!user || !user.username) return; // Prevents errors if user is undefined
+    
         try {
             const response = await fetch(`${API_USER}/update-preferences`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                },
                 body: JSON.stringify({
                     username: user.username,
                     platforms: selectedPlatforms,
                     genres: favoriteGenres,
                 }),
             });
-
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || "Failed to save preferences");
-
-            console.log("✅ Preferences saved:", data);
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to save preferences");
+            }
+    
+            console.log("✅ Preferences saved successfully!");
         } catch (error) {
             console.error("🚨 Error saving preferences:", error.message);
         }
     }
+    
 
     async function fetchUserMessages() {
         try {
@@ -288,17 +299,35 @@ function UserPage() {
                             ))}
                         </div>
                     </div>
+                    <button className="save-preferences-btn" onClick={savePreferences}>Save Preferences</button>
                 </div>
 
                 <h2>Recent Posts</h2>
-                <div className="posts-container">
-                    {posts.map((post) => (
-                        <div key={post.id} className="post">
-                            <strong>{post.username}</strong> <span className="game-title">({post.game_name})</span>
-                            <p>{post.content}</p>
-                        </div>
-                    ))}
+<div className="posts-container">
+    {posts.length > 0 ? (
+        posts.map((post) => (
+            <div key={post.id} className="post">
+                <div className="post-header">
+                    <img src={post.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
+                    <strong>{post.username}</strong>
                 </div>
+                
+                <h3 
+                    className="game-title"
+                    style={{ cursor: post.game_id ? "pointer" : "default", color: post.game_id ? "#007bff" : "black" }} 
+                    onClick={() => post.game_id && navigate(`/game/${post.game_id}`)}
+                >
+                    {post.game_name || "Unknown Game"}
+                </h3>
+
+                <p>{post.content}</p>
+            </div>
+        ))
+    ) : (
+        <p>No recent posts yet.</p>
+    )}
+</div>
+ 
 
                 <h2>{user.username}'s Messages</h2>
 
