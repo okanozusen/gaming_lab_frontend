@@ -3,12 +3,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "../styles/PostsPage.css";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "https://gaming-lab.onrender.com"; 
-
-const API_POSTS = `${API_BASE_URL}/api/posts`;
-const API_GAMES = `${API_BASE_URL}/api/games`;
-const API_FRIENDS = `${API_BASE_URL}/api/friends`;
-
+const API_POSTS = "https://gaming-lab.onrender.com/api/posts";
+const API_GAMES = "https://gaming-lab.onrender.com/api/games";
+const API_FRIENDS = "https://gaming-lab.onrender.com/api/friends";
 
 function PostsPage() {
     const { user } = useAuth();
@@ -27,6 +24,8 @@ function PostsPage() {
     async function fetchPosts() {
         try {
             const response = await fetch(API_POSTS);
+            if (!response.ok) throw new Error("Failed to fetch posts");
+
             const data = await response.json();
             setPosts(Array.isArray(data) ? data : []);
 
@@ -46,18 +45,8 @@ function PostsPage() {
 
     async function handlePostSubmit(e) {
         e.preventDefault();
-        if (!user?.username) {
-            console.error("🚨 User is not logged in!");
-            return;
-        }
-
-        if (!newPost.trim()) {
-            console.error("🚨 Cannot submit an empty post!");
-            return;
-        }
-
-        if (!selectedGame) {
-            console.error("🚨 No game selected!");
+        if (!user?.username || !newPost.trim() || !selectedGame) {
+            console.error("🚨 Missing post details!");
             return;
         }
 
@@ -68,8 +57,6 @@ function PostsPage() {
             game_id: selectedGame?.id || null,
             game_name: selectedGame?.name || "Unknown Game",
         };
-
-        console.log("📤 Sending Post Data:", post);
 
         try {
             const token = localStorage.getItem("token");
@@ -83,18 +70,11 @@ function PostsPage() {
             });
 
             const responseData = await response.json();
-            if (!response.ok) {
-                console.error("🚨 Server Error:", responseData);
-                throw new Error(responseData.error || "Failed to create post");
-            }
+            if (!response.ok) throw new Error(responseData.error || "Failed to create post");
 
             console.log("✅ Post submitted successfully!");
-            fetchPosts(); // Re-fetch posts to ensure it appears on refresh
-
-            // Prepend new post at the top
+            fetchPosts();
             setPosts((prevPosts) => [responseData, ...prevPosts]);
-
-            // Reset form
             setNewPost("");
             setSelectedGame(null);
             setGameSuggestions([]);
@@ -106,16 +86,16 @@ function PostsPage() {
     async function handleGameSearch(e) {
         const query = e.target.value.trim();
         setNewPost(query);
-    
+
         if (query.length < 2) {
             setGameSuggestions([]);
             return;
         }
-    
+
         try {
-            const response = await fetch(`${API_GAMES}/search?search=${encodeURIComponent(query)}`);
+            const response = await fetch(`${API_GAMES}?search=${encodeURIComponent(query)}&page=1`);
             if (!response.ok) throw new Error("Server responded with an error");
-    
+
             const data = await response.json();
             setGameSuggestions(Array.isArray(data) ? data.slice(0, 5) : []);
         } catch (error) {
@@ -123,8 +103,43 @@ function PostsPage() {
             setGameSuggestions([]);
         }
     }
-    
-    // Add friend function
+
+    async function handleReplySubmit(e, postId) {
+        e.preventDefault();
+        if (!replyContent[postId]?.trim() || !user) return;
+
+        const replyData = {
+            username: user.username || "Guest",
+            content: replyContent[postId].trim(),
+        };
+
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${API_POSTS}/${postId}/reply`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(replyData),
+            });
+
+            const responseData = await response.json();
+            if (!response.ok) throw new Error(responseData.error || "Failed to post reply");
+
+            setPosts((prevPosts) =>
+                prevPosts.map((post) =>
+                    post.id === postId
+                        ? { ...post, replies: [responseData, ...(post.replies || [])] }
+                        : post
+                )
+            );
+            setReplyContent((prev) => ({ ...prev, [postId]: "" }));
+        } catch (error) {
+            console.error("🚨 Error posting reply:", error.message);
+        }
+    }
+
     async function handleAddFriend(friendUsername) {
         if (!user || !friendUsername || friends[friendUsername] || friendUsername === user.username) return;
 
@@ -151,54 +166,8 @@ function PostsPage() {
         }
     }
 
-    // Reply submission function
-    async function handleReplySubmit(e, postId) {
-        e.preventDefault();
-        if (!replyContent[postId]?.trim() || !user) return;
-
-        const replyData = {
-            username: user.username || "Guest",
-            content: replyContent[postId].trim(),
-        };
-
-        console.log("📤 Sending Reply:", replyData);
-
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${API_POSTS}/${postId}/reply`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(replyData),
-            });
-
-            const responseData = await response.json();
-
-            if (!response.ok) {
-                console.error("🚨 Server Error:", responseData);
-                throw new Error(responseData.error || "Failed to post reply");
-            }
-
-            // Ensure replies exist and add new reply correctly
-            setPosts((prevPosts) =>
-                prevPosts.map((post) =>
-                    post.id === postId
-                        ? { ...post, replies: [responseData, ...(post.replies || [])] }
-                        : post
-                )
-            );
-
-            setReplyContent((prev) => ({ ...prev, [postId]: "" }));
-        } catch (error) {
-            console.error("🚨 Error posting reply:", error.message);
-        }
-    }
-
     return (
         <div className="posts-page">
-            {/* Post Form */}
             {user ? (
                 <form onSubmit={handlePostSubmit} className="post-form">
                     <div className="post-header">
@@ -226,17 +195,16 @@ function PostsPage() {
                                 <div className="game-suggestions">
                                     {gameSuggestions.map((game) => (
                                         <div
-                                        key={game.id}
-                                        onClick={() => {
-                                            setSelectedGame(game);
-                                            setNewPost("");  // Clears input when a game is selected
-                                            setGameSuggestions([]); 
-                                        }}
-                                        className="suggestion"
-                                    >
-                                        {game.name}
-                                    </div>
-                                    
+                                            key={game.id}
+                                            onClick={() => {
+                                                setSelectedGame(game);
+                                                setNewPost("");
+                                                setGameSuggestions([]);
+                                            }}
+                                            className="suggestion"
+                                        >
+                                            {game.name}
+                                        </div>
                                     ))}
                                 </div>
                             )}
@@ -267,53 +235,16 @@ function PostsPage() {
                                 <strong>{post.username}</strong>
                             </div>
                             <div className="center">
-                            <h3 
-    className="game-title" 
-    style={{ cursor: post.game_id ? "pointer" : "default", color: post.game_id ? "#007bff" : "black" }} 
-    onClick={() => post.game_id && navigate(`/game/${post.game_id}`)}
->
-    {post.game_name || "Unknown Game"}
-</h3>
-
+                                <h3 
+                                    className="game-title"
+                                    style={{ cursor: post.game_id ? "pointer" : "default", color: post.game_id ? "#007bff" : "black" }} 
+                                    onClick={() => post.game_id && navigate(`/game/${post.game_id}`)}
+                                >
+                                    {post.game_name || "Unknown Game"}
+                                </h3>
                             </div>
                         </div>
                         <p>{post.content}</p>
-
-                        <div className="replies">
-                            {Array.isArray(post.replies) && post.replies.length > 0 ? (
-                                post.replies.map((reply, index) => (
-                                    <div key={index} className="reply">
-                                        <strong>{reply.username || "Unknown User"}:</strong> {reply.content || "(No Content)"}
-
-                                        {/* Only show "Add Friend" button for other users (not yourself) */}
-                                        {reply.username && reply.username !== user?.username && (
-                                            <button 
-                                                className="friend-btn" 
-                                                style={{ float: "right" }} // Keeps button on the right
-                                                onClick={() => handleAddFriend(reply.username)}
-                                            >
-                                                {friends[reply.username] ? "Friend Added" : "+ Add Friend"}
-                                            </button>
-                                        )}
-                                    </div>
-                                ))
-                            ) : (
-                                <p>No replies yet.</p>
-                            )}
-                        </div>
-
-                        {user && (
-                            <form onSubmit={(e) => handleReplySubmit(e, post.id)} className="reply-form">
-                                <textarea
-                                    value={replyContent[post.id] || ""}
-                                    onChange={(e) =>
-                                        setReplyContent({ ...replyContent, [post.id]: e.target.value })
-                                    }
-                                    placeholder="Write a reply..."
-                                />
-                                <button type="submit">Reply</button>
-                            </form>
-                        )}
                     </div>
                 ))}
             </div>
