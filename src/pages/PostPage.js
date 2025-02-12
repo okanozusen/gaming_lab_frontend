@@ -245,6 +245,10 @@ function PostsPage() {
                             </div>
                         </div>
                         <p>{post.content}</p>
+
+                        <button className="reply-btn" onClick={() => setReplyContent({ ...replyContent, [post.id]: "" })}>
+                            Reply
+                        </button>
                     </div>
                 ))}
             </div>
