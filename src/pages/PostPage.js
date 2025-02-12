@@ -175,7 +175,7 @@ function PostsPage() {
         }
     }
 
-     return (
+    return (
         <div className="posts-page">
             {user ? (
                 <form onSubmit={(e) => e.preventDefault()} className="post-form">
