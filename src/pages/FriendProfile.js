@@ -48,24 +48,34 @@ function FriendProfile() {
     }
 
     async function sendMessage() {
-        if (!message.trim() || !user) return;
-
+        if (!message.trim()) return;
+    
         try {
+            const token = localStorage.getItem("token"); // ✅ Ensure token is included
             const response = await fetch(`${API_FRIENDS}/${username}/message`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sender: user.username, message }),
+                headers: { 
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}` // ✅ Add Authorization
+                },
+                body: JSON.stringify({ sender: user.username, message }) // ✅ Ensure sender is included
             });
-
+    
+            if (!response.ok) {
+                const errorData = await response.text(); // ✅ Capture response if not JSON
+                throw new Error(`Server Response: ${errorData}`);
+            }
+    
             const data = await response.json();
             if (data.success) {
                 setChatHistory([...chatHistory, { sender: user.username, content: message }]);
-                setMessage("");
+                setMessage(""); // ✅ Clear input after sending
             }
         } catch (error) {
             console.error("🚨 Error sending message:", error.message);
         }
     }
+    
 
     return (
         <div className="friend-profile-page">
