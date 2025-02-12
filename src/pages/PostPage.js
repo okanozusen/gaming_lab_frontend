@@ -181,14 +181,14 @@ function PostsPage() {
         <div className="posts-page">
             {user ? (
                 <form onSubmit={handlePostSubmit} className="post-form">
-
                     <div className="post-header">
                         <div className="left">
                             <img src={user.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
                             <strong>{user.username}</strong>
                         </div>
-
+    
                         <div className="center">
+                            {/* ✅ If a game is selected, display its title as the post title */}
                             {selectedGame ? (
                                 <h3 className="game-title" onClick={() => navigate(`/game/${selectedGame.id}`)}>
                                     {selectedGame.name}
@@ -198,11 +198,12 @@ function PostsPage() {
                                     type="text"
                                     placeholder="Search for a game..."
                                     value={newPost}
-                                    onChange={(e) => setNewPost(e.target.value)}
+                                    onChange={handleGameSearch} // ✅ Use game search function correctly
                                     className="game-search"
                                 />
                             )}
-
+    
+                            {/* ✅ Game Suggestions Dropdown (Unchanged) */}
                             {gameSuggestions.length > 0 && (
                                 <div className="game-suggestions">
                                     {gameSuggestions.map((game) => (
@@ -222,11 +223,24 @@ function PostsPage() {
                             )}
                         </div>
                     </div>
+    
+                    {/* ✅ Post Text Input Always Available */}
+                    <textarea
+                        placeholder="What's on your mind?"
+                        value={newPost}
+                        onChange={(e) => setNewPost(e.target.value)}
+                        className="post-input"
+                    />
+    
+                    {/* ✅ Post Button */}
+                    <button type="submit" className="post-submit-btn">Post</button>
+    
                 </form>
             ) : (
                 <p>Please log in to post.</p>
             )}
-
+    
+            {/* ✅ Display Posts */}
             <div className="posts-container">
                 {posts.map((post) => (
                     <div key={post.id} className="post">
@@ -235,7 +249,7 @@ function PostsPage() {
                                 <img src={post.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
                                 <strong>{post.username}</strong>
                             </div>
-
+    
                             <div className="center">
                                 <h3 
                                     className="game-title"
@@ -245,7 +259,7 @@ function PostsPage() {
                                     {post.game_name || "Unknown Game"}
                                 </h3>
                             </div>
-
+    
                             <div className="right">
                                 {user.username !== post.username && !friends[post.username] && (
                                     <button 
@@ -257,9 +271,9 @@ function PostsPage() {
                                 )}
                             </div>
                         </div>
-
+    
                         <p>{post.content}</p>
-
+    
                         <div className="post-actions">
                             <button 
                                 className="reply-button"
@@ -268,7 +282,7 @@ function PostsPage() {
                                 Reply
                             </button>
                         </div>
-
+    
                         {showReplyBox[post.id] && (
                             <div className="reply-section">
                                 <textarea
@@ -285,7 +299,7 @@ function PostsPage() {
                                 </button>
                             </div>
                         )}
-
+    
                         <div className="replies-container">
                             {post.replies?.map((reply) => (
                                 <div key={reply.id} className="reply">
@@ -298,6 +312,7 @@ function PostsPage() {
             </div>
         </div>
     );
+    
 }
 
 export default PostsPage;
