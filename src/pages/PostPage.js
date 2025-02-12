@@ -180,7 +180,7 @@ function PostsPage() {
     return (
         <div className="posts-page">
             {user ? (
-                <form onSubmit={(e) => e.preventDefault()} className="post-form">
+                <form onSubmit={handlePostSubmit} className="post-form">
                     <div className="post-header">
                         <div className="left">
                             <img src={user.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
@@ -194,12 +194,13 @@ function PostsPage() {
                                 </h3>
                             ) : (
                                 <input
-                                    type="text"
-                                    placeholder="Search for a game..."
-                                    value={newPost}
-                                    onChange={(e) => setNewPost(e.target.value)}
-                                    className="game-search"
-                                />
+    type="text"
+    placeholder="Search for a game..."
+    value={newPost}
+    onChange={handleGameSearch}  // ✅ FIX: Use the function here
+    className="game-search"
+/>
+
                             )}
 
                             {gameSuggestions.length > 0 && (
