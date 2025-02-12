@@ -27,33 +27,18 @@ function GameDetails() {
     // Fetch game details from the API
     async function fetchGameDetails() {
         try {
-            console.log(`🔍 Searching for game using ID: ${id}`);
+            console.log(`🔍 Fetching game using ID: ${id}`);
     
-            // Step 1: Try searching by ID first
-            let response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/games?search=${id}`);
-            if (!response.ok) throw new Error("Game search failed");
+            // Step 1: Fetch game details using the correct API endpoint
+            let response = await fetch(`${API_BASE_URL}/api/games/${id}`);
+            if (!response.ok) throw new Error(`Game not found (Status: ${response.status})`);
     
-            let data = await response.json();
-            console.log("✅ Game Data Received:", data);  // Debug log
+            let gameData = await response.json();
+            console.log("✅ Game Data Received:", gameData);  // Debugging log
     
-            // Step 2: If search results don't contain the exact game, try a name search
-            let gameData = data.find(game => game.id.toString() === id);
+            if (!gameData || !gameData.name) throw new Error("Invalid game data received");
     
-            // Step 3: If the game is still not found, try searching by name (if we have it)
-            if (!gameData && data.length > 0) {
-                console.log("🔄 Trying to find the game by name instead...");
-                const gameName = data[0].name; // Get first game's name
-                response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/games?search=${encodeURIComponent(gameName)}`);
-                if (response.ok) {
-                    let newData = await response.json();
-                    gameData = newData.find(game => game.name.toLowerCase() === gameName.toLowerCase());
-                }
-            }
-    
-            if (!gameData) throw new Error("Game not found in search results");
-    
-            console.log("✅ Final Selected Game:", gameData);
-    
+            // Step 2: Handle release year logic
             let releaseYear = gameData.first_release_date 
                 ? new Date(gameData.first_release_date * 1000).getFullYear()
                 : "Unknown";
@@ -61,6 +46,7 @@ function GameDetails() {
             let validRatings = gameData.age_ratings?.map(a => a.category).filter(r => r >= 1 && r <= 7) || [];
             let highestRating = validRatings.length ? Math.max(...validRatings) : "Unknown";
     
+            // Step 3: Update the game state
             setGame({
                 ...gameData,
                 releaseYear,
@@ -70,7 +56,6 @@ function GameDetails() {
             console.error("🚨 Error fetching game details:", error.message);
         }
     }
-    
     // Show loading message if game is not yet loaded
     if (!game) return <h2>Loading game details...</h2>;
 
