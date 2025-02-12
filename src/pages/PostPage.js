@@ -155,12 +155,6 @@ function PostsPage() {
     
         try {
             const token = localStorage.getItem("token");
-    
-            // Fetch the user ID of the friend
-            const friendResponse = await fetch(`${API_FRIENDS}/${friendUsername}`);
-            if (!friendResponse.ok) throw new Error("Friend user not found");
-            const friendData = await friendResponse.json();
-    
             const response = await fetch(`${API_FRIENDS}/add-friend`, {
                 method: "POST",
                 headers: {
@@ -168,16 +162,19 @@ function PostsPage() {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    currentUser: user.username, // ✅ Ensure correct username is sent
-                    friendUsername: friendData.username, // ✅ Use valid username
+                    currentUser: user.username,
+                    friendUsername,
                 }),
             });
     
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || "Failed to add friend");
+            if (data.success) {
+                console.log("✅ Friend Added:", friendUsername);
+                setFriends(prev => ({ ...prev, [friendUsername]: true }));
     
-            console.log("✅ Friend added successfully:", data);
-            setFriends((prev) => ({ ...prev, [friendUsername]: true })); // ✅ Update state
+                // ✅ Re-fetch the updated friends list
+                fetchFriends();
+            }
         } catch (error) {
             console.error("🚨 Error adding friend:", error.message);
         }
