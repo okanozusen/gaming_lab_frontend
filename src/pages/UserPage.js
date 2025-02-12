@@ -3,10 +3,9 @@ import "../styles/UserPage.css";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const API_POSTS = `${process.env.REACT_APP_BASE_URL}/api/posts`;
-const API_MESSAGES = `${process.env.REACT_APP_BASE_URL}/api/messages`;
-const API_USER = `${process.env.REACT_APP_BASE_URL}/api/users`; // Updated the path here as well
-
+const API_USER = "https://gaming-lab.onrender.com/api/users";
+const API_POSTS = "https://gaming-lab.onrender.com/api/posts";
+const API_MESSAGES = "https://gaming-lab.onrender.com/api/messages"; // ✅ Fixed API Path
 
 const DEFAULT_BANNER = "https://picsum.photos/800/250";
 const DEFAULT_PROFILE_PIC = "https://picsum.photos/200";
@@ -38,9 +37,9 @@ function UserPage() {
     async function fetchUserData(username) {
         try {
             const response = await fetch(`${API_USER}/${username}`);
- // ✅ Fixed API route
             if (!response.ok) throw new Error(`Error: ${response.status}`);
             const data = await response.json();
+            
             setProfilePic(data.profile_pic || DEFAULT_PROFILE_PIC);
             setBanner(data.banner || DEFAULT_BANNER);
             setSelectedPlatforms(data.platforms || []);
@@ -49,37 +48,34 @@ function UserPage() {
             console.error("🚨 Error fetching user data:", error.message);
         }
     }
-    
+
     async function fetchUserPosts(username) {
         try {
-            const response = await fetch(`${API_POSTS}/user/${username}`); // Use new API route
+            const response = await fetch(`${API_USER}/${username}/posts`);
             if (!response.ok) throw new Error(`Error: ${response.status}`);
-    
+
             const data = await response.json();
-            console.log("✅ User's Recent Posts:", data);
             setPosts(data);
         } catch (error) {
             console.error("🚨 Error fetching user posts:", error.message);
         }
     }
-    
 
     async function fetchUserMessages(username) {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:5000/api/messages?username=${username}`, {
-                headers: { Authorization: `Bearer ${token}` }
+            const response = await fetch(`${API_MESSAGES}?username=${username}`, {
+                headers: { Authorization: `Bearer ${token}` },
             });
-    
+
             if (!response.ok) throw new Error(`Error: ${response.status}`);
-    
+
             const data = await response.json();
             setMessages(data);
         } catch (error) {
             console.error("🚨 Error fetching messages:", error.message);
         }
     }
-    
 
     async function handleUsernameChange() {
         if (!newUsername.trim()) {
@@ -92,7 +88,7 @@ function UserPage() {
         }
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${API_USER}/api/users/update-username`, {  // ✅ Fixed API path
+            const response = await fetch(`${API_USER}/update-username`, {  // ✅ Fixed API path
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -120,26 +116,26 @@ function UserPage() {
     async function handleProfilePicUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-    
+
         const formData = new FormData();
         formData.append("profilePic", file);
         formData.append("username", user.username);
-    
+
         try {
             const response = await fetch(`${API_USER}/upload-profile-pic`, {
                 method: "POST",
                 body: formData,
             });
-    
+
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || "Failed to upload profile picture");
-    
-            setProfilePic(`data:image/png;base64,${data.profilePic}`); // Set new image
+
+            setProfilePic(`data:image/png;base64,${data.profilePic}`);
         } catch (error) {
             console.error("🚨 Error uploading profile picture:", error.message);
         }
     }
-    
+
     async function savePreferences() {
         try {
             const response = await fetch(`${API_USER}/update-preferences`, {
@@ -151,36 +147,14 @@ function UserPage() {
                     genres: favoriteGenres,
                 }),
             });
-    
+
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || "Failed to save preferences");
-    
+
             console.log("✅ Preferences saved:", data);
         } catch (error) {
             console.error("🚨 Error saving preferences:", error.message);
         }
-    }
-    
-    function handlePlatformChange(e) {
-        const selectedPlatform = e.target.value;
-        if (!selectedPlatforms.includes(selectedPlatform)) {
-            setSelectedPlatforms([...selectedPlatforms, selectedPlatform]);
-        }
-    }
-
-    function removePlatform(platform) {
-        setSelectedPlatforms(selectedPlatforms.filter(p => p !== platform));
-    }
-
-    function handleGenreChange(e) {
-        const selectedGenre = e.target.value;
-        if (favoriteGenres.length < 5 && !favoriteGenres.includes(selectedGenre)) {
-            setFavoriteGenres([...favoriteGenres, selectedGenre]);
-        }
-    }
-
-    function removeGenre(genre) {
-        setFavoriteGenres(favoriteGenres.filter(g => g !== genre));
     }
 
     return (
@@ -196,12 +170,11 @@ function UserPage() {
                         <div className="profile-pic-section">
                             <img src={profilePic} alt="Profile" className="profile-pic" />
                             <input
-    type="text"
-    placeholder="Profile Picture URL"
-    value={profilePic}
-    onChange={(e) => setProfilePic(e.target.value)} // ✅ Fix
-/>
-
+                                type="text"
+                                placeholder="Profile Picture URL"
+                                value={profilePic}
+                                onChange={(e) => setProfilePic(e.target.value)}
+                            />
                         </div>
 
                         <div className="username-section">
@@ -217,11 +190,10 @@ function UserPage() {
                     </div>
                 </div>
 
-                {/* ✅ Gaming Preferences Restored */}
                 <div className="gaming-preferences">
                     <div className="platform-section">
                         <label>Preferred Platforms:</label>
-                        <select onChange={handlePlatformChange}>
+                        <select onChange={(e) => setSelectedPlatforms([...selectedPlatforms, e.target.value])}>
                             <option value="">Select Platform</option>
                             {PLATFORMS.map((platform, index) => (
                                 <option key={index} value={platform}>{platform}</option>
@@ -230,24 +202,7 @@ function UserPage() {
                         <div className="selected-platforms">
                             {selectedPlatforms.map((platform, index) => (
                                 <span key={index} className="platform-tag">
-                                    {platform} <button onClick={() => removePlatform(platform)}>❌</button>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="genre-section">
-                        <label>Top 5 Favorite Genres:</label>
-                        <select onChange={handleGenreChange}>
-                            <option value="">Select Genre</option>
-                            {GENRES.map((genre, index) => (
-                                <option key={index} value={genre}>{genre}</option>
-                            ))}
-                        </select>
-                        <div className="selected-genres">
-                            {favoriteGenres.map((genre, index) => (
-                                <span key={index} className="genre-tag">
-                                    {genre} <button onClick={() => removeGenre(genre)}>❌</button>
+                                    {platform} <button onClick={() => setSelectedPlatforms(selectedPlatforms.filter(p => p !== platform))}>❌</button>
                                 </span>
                             ))}
                         </div>
