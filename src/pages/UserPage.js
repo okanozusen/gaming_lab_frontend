@@ -27,16 +27,23 @@ function UserPage() {
     const [selectedSender, setSelectedSender] = useState(null); // Active chat
     const [replyMessage, setReplyMessage] = useState("");
 
-
     useEffect(() => {
         if (!user?.username) return;
+    
+        // First, check if profilePic exists in localStorage before making API calls
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if (storedUser?.profilePic) {
+            setUser((prevUser) => ({
+                ...prevUser,
+                profilePic: storedUser.profilePic,
+            }));
+        }
     
         fetchUserData(user.username);
         fetchUserPosts(user.username);
         fetchUserMessages();
-    }, [user?.username]); // ✅ Only runs when username changes, avoiding redundant calls
+    }, [user?.username]); // ✅ Only runs when username changes
     
-
     async function fetchUserData(username) {
         try {
             const response = await fetch(`${API_USER}/${username}`);
@@ -45,11 +52,12 @@ function UserPage() {
 
             setUser((prevUser) => ({
                 ...prevUser,
-                profilePic: data.profile_pic || DEFAULT_PROFILE_PIC,
-                banner: data.banner || DEFAULT_BANNER,
-                platforms: data.platforms || [],
-                genres: data.genres || [],
+                profilePic: data.profile_pic ? `data:image/png;base64,${data.profile_pic}` : prevUser.profilePic,
+                banner: data.banner ? `data:image/png;base64,${data.banner}` : prevUser.banner,
+                platforms: data.platforms?.length ? data.platforms : prevUser.platforms,
+                genres: data.genres?.length ? data.genres : prevUser.genres,
             }));
+            
             
         } catch (error) {
             console.error("🚨 Error fetching user data:", error.message);
@@ -93,7 +101,15 @@ function UserPage() {
             setUser((prevUser) => ({
                 ...prevUser,
                 profilePic: `data:image/png;base64,${data.profilePic}`,
-            }));            
+            }));
+            
+            localStorage.setItem(
+                "user",
+                JSON.stringify({
+                    ...user,
+                    profilePic: `data:image/png;base64,${data.profilePic}`,
+                })
+            );                        
     
             alert("✅ Profile picture updated successfully!");
         } catch (error) {
@@ -332,7 +348,7 @@ function UserPage() {
         posts.map((post) => (
             <div key={post.id} className="post">
                 <div className="post-header">
-                <img src={user?.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
+                <img src={post.profilePic || post.profile_pic || "https://placehold.co/50"} alt="User" className="profile-pic" />
                     <strong>{post.username}</strong>
                 </div>
                 
