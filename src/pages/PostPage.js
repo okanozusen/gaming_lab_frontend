@@ -206,7 +206,7 @@ function PostsPage() {
                     <div className="post-header">
                         <div className="left">
                             <img src={user.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
-                            <strong>{user.username}</strong>
+                            <strong>{user?.username}</strong>
                         </div>
     
                         <div className="center">

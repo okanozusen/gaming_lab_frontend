@@ -8,15 +8,16 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const savedUser = localStorage.getItem("user");
         const savedToken = localStorage.getItem("token");
-
+    
         if (savedUser && savedToken) {
             try {
                 setUser(JSON.parse(savedUser));
             } catch (error) {
                 console.error("🚨 Error parsing user data:", error);
+                setUser(null); // Reset user if parsing fails
             }
         }
-    }, []);
+    }, []);    
 
     const login = (userData, token) => {
         if (!userData || !userData.username) {

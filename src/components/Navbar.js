@@ -36,7 +36,7 @@ function Navbar() {
 
             {user && (
                 <div className="user-info">
-                    <img src={user.profilePic || DEFAULT_PROFILE_PIC} alt="Profile" className="nav-profile-pic" />
+                    <img src={user?.profilePic || DEFAULT_PROFILE_PIC} alt="Profile" className="nav-profile-pic" />
                     <span className="nav-username">{user.username}</span>
                 </div>
             )}

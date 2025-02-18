@@ -66,7 +66,6 @@ function UserPage() {
         }
     }
     
-
     async function handleProfilePicUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -86,11 +85,17 @@ function UserPage() {
                 throw new Error(data.error || "Failed to upload profile picture");
             }
     
-            setProfilePic(`data:image/png;base64,${data.profilePic}`);
+            console.log("✅ Profile picture updated successfully!");
+    
+            // ✅ Update the global user state in AuthContext
+            const updatedUser = { ...user, profilePic: `data:image/png;base64,${data.profilePic}` };
+            setUser(updatedUser);  // ✅ This will update the entire app
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+    
             alert("✅ Profile picture updated successfully!");
         } catch (error) {
             console.error("🚨 Error uploading profile picture:", error.message);
-            alert(`❌ ${error.message}`); // ✅ Show error message to user
+            alert(`❌ ${error.message}`);
         }
     }
     
@@ -113,14 +118,19 @@ function UserPage() {
                 throw new Error(data.error || "Failed to upload banner");
             }
     
-            setBanner(`data:image/png;base64,${data.banner}`);
+            console.log("✅ Banner updated successfully!");
+    
+            // ✅ Update the global user state in AuthContext
+            const updatedUser = { ...user, banner: `data:image/png;base64,${data.banner}` };
+            setUser(updatedUser);  // ✅ Updates the entire app
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+    
             alert("✅ Banner updated successfully!");
         } catch (error) {
             console.error("🚨 Error uploading banner:", error.message);
-            alert(`❌ ${error.message}`); // ✅ Show error message to user
+            alert(`❌ ${error.message}`);
         }
-    }
-    
+    }    
 
     async function handleUsernameChange() {
         if (!newUsername.trim() || !user?.username) return;
