@@ -19,8 +19,6 @@ function UserPage() {
     const navigate = useNavigate();
 
     const [posts, setPosts] = useState([]);
-    const [banner, setBanner] = useState(DEFAULT_BANNER);
-    const [profilePic, setProfilePic] = useState(DEFAULT_PROFILE_PIC);
     const [selectedPlatforms, setSelectedPlatforms] = useState([]);
     const [favoriteGenres, setFavoriteGenres] = useState([]);
     const [newUsername, setNewUsername] = useState(user?.username || "");
@@ -31,12 +29,12 @@ function UserPage() {
 
 
     useEffect(() => {
-        if (user && user.username) {
-            fetchUserData(user.username);
-            fetchUserPosts(user.username);
-            fetchUserMessages();
-        }
-    }, [user]); // ✅ Makes sure it runs when `user` changes
+        if (!user?.username) return;
+    
+        fetchUserData(user.username);
+        fetchUserPosts(user.username);
+        fetchUserMessages();
+    }, [user?.username]); // ✅ Only runs when username changes, avoiding redundant calls
     
 
     async function fetchUserData(username) {
@@ -45,10 +43,14 @@ function UserPage() {
             if (!response.ok) throw new Error(`Error: ${response.status}`);
             const data = await response.json();
 
-            setProfilePic(data.profile_pic || DEFAULT_PROFILE_PIC);
-            setBanner(data.banner || DEFAULT_BANNER);
-            setSelectedPlatforms(data.platforms || []);
-            setFavoriteGenres(data.genres || []);
+            setUser((prevUser) => ({
+                ...prevUser,
+                profilePic: data.profile_pic || DEFAULT_PROFILE_PIC,
+                banner: data.banner || DEFAULT_BANNER,
+                platforms: data.platforms || [],
+                genres: data.genres || [],
+            }));
+            
         } catch (error) {
             console.error("🚨 Error fetching user data:", error.message);
         }
@@ -88,9 +90,10 @@ function UserPage() {
             console.log("✅ Profile picture updated successfully!");
     
             // ✅ Update the global user state in AuthContext
-            const updatedUser = { ...user, profilePic: `data:image/png;base64,${data.profilePic}` };
-            setUser(updatedUser);  // ✅ This will update the entire app
-            localStorage.setItem("user", JSON.stringify(updatedUser));
+            setUser((prevUser) => ({
+                ...prevUser,
+                profilePic: `data:image/png;base64,${data.profilePic}`,
+            }));            
     
             alert("✅ Profile picture updated successfully!");
         } catch (error) {
@@ -121,9 +124,10 @@ function UserPage() {
             console.log("✅ Banner updated successfully!");
     
             // ✅ Update the global user state in AuthContext
-            const updatedUser = { ...user, banner: `data:image/png;base64,${data.banner}` };
-            setUser(updatedUser);  // ✅ Updates the entire app
-            localStorage.setItem("user", JSON.stringify(updatedUser));
+            setUser((prevUser) => ({
+                ...prevUser,
+                banner: `data:image/png;base64,${data.banner}`,
+            }));            
     
             alert("✅ Banner updated successfully!");
         } catch (error) {
@@ -248,7 +252,7 @@ function UserPage() {
     return (
         <div className="page-container">
             <div className="user-page">
-                <div className="banner-container" style={{ backgroundImage: `url(${banner})` }}>
+            <div className="banner-container" style={{ backgroundImage: `url(${user?.banner || DEFAULT_BANNER})` }}>
                     <label className="edit-banner-btn">
                         Upload Banner
                         <input type="file" accept="image/*" onChange={handleBannerUpload} />
@@ -257,7 +261,7 @@ function UserPage() {
 
                 <div className="profile-container">
                     <div className="profile-pic-section">
-                        <img src={profilePic} alt="Profile" className="profile-pic" />
+                    <img src={user?.profilePic || DEFAULT_PROFILE_PIC} alt="Profile" className="profile-pic" />
                         <label className="edit-profile-btn">
                             Upload Profile Picture
                             <input type="file" accept="image/*" onChange={handleProfilePicUpload} />
@@ -328,7 +332,7 @@ function UserPage() {
         posts.map((post) => (
             <div key={post.id} className="post">
                 <div className="post-header">
-                    <img src={post.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
+                <img src={user?.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
                     <strong>{post.username}</strong>
                 </div>
                 
