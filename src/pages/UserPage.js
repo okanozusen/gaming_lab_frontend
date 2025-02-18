@@ -70,48 +70,57 @@ function UserPage() {
     async function handleProfilePicUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-
+    
         const formData = new FormData();
         formData.append("profilePic", file);
         formData.append("username", user.username);
-
+    
         try {
             const response = await fetch(`${API_USER}/upload-profile-pic`, {
                 method: "POST",
                 body: formData,
             });
-
+    
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || "Failed to upload profile picture");
-
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to upload profile picture");
+            }
+    
             setProfilePic(`data:image/png;base64,${data.profilePic}`);
+            alert("✅ Profile picture updated successfully!");
         } catch (error) {
             console.error("🚨 Error uploading profile picture:", error.message);
+            alert(`❌ ${error.message}`); // ✅ Show error message to user
         }
     }
-
+    
     async function handleBannerUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
-
+    
         const formData = new FormData();
         formData.append("banner", file);
         formData.append("username", user.username);
-
+    
         try {
             const response = await fetch(`${API_USER}/upload-banner`, {
                 method: "POST",
                 body: formData,
             });
-
+    
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || "Failed to upload banner");
-
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to upload banner");
+            }
+    
             setBanner(`data:image/png;base64,${data.banner}`);
+            alert("✅ Banner updated successfully!");
         } catch (error) {
             console.error("🚨 Error uploading banner:", error.message);
+            alert(`❌ ${error.message}`); // ✅ Show error message to user
         }
     }
+    
 
     async function handleUsernameChange() {
         if (!newUsername.trim() || !user?.username) return;

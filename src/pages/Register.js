@@ -21,31 +21,28 @@ function Register() {
         try {
             console.log("🔍 Sending Registration Request:", formData);
             
-            // ✅ Corrected API URL for registering users
             const API_BASE_URL = process.env.REACT_APP_BASE_URL || "https://gaming-lab.onrender.com";
-const API_REGISTER = `${API_BASE_URL}/api/auth/register`;
+            const API_REGISTER = `${API_BASE_URL}/api/auth/register`;
 
-const response = await fetch(API_REGISTER, {
-
+            const response = await fetch(API_REGISTER, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             });
 
-            // ✅ Check if response is HTML instead of JSON
-            const textResponse = await response.text();
+            // ✅ Parse JSON response correctly
+            const data = await response.json();
+
             if (!response.ok) {
-                console.error("🚨 Server Error Response:", textResponse);
-                throw new Error("Registration failed. Please try again.");
+                console.error("🚨 Registration Error Response:", data);
+                throw new Error(data.error || "Registration failed. Please try again."); // ✅ Display API error
             }
 
-            // ✅ Convert text response to JSON
-            const data = JSON.parse(textResponse);
             console.log("✅ Registration Success:", data);
             navigate("/login");
         } catch (error) {
             console.error("🚨 Registration Error:", error.message);
-            setError(error.message);
+            setError(error.message); // ✅ Show specific error message
         }
     };
 
