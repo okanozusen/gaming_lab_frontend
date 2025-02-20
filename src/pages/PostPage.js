@@ -60,7 +60,6 @@ function PostsPage() {
     
         const post = {
             username: user.username,
-            profilePic: user?.profilePic || "https://placehold.co/50",
             content: newPost.trim(),
             game_id: selectedGame.id, 
             game_name: selectedGame.name || "Unknown Game",
