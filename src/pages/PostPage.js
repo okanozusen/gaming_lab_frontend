@@ -51,8 +51,10 @@ function PostsPage() {
     async function handlePostSubmit(e) {
         e.preventDefault();
     
+        console.log("🔍 Checking Post Data:", { user, newPost, selectedGame });
+    
         if (!user?.username || !newPost.trim() || !selectedGame) {
-            console.error("🚨 Missing post details!");
+            console.error("🚨 Missing post details!", { user, newPost, selectedGame });
             return;
         }
     
@@ -64,21 +66,28 @@ function PostsPage() {
             game_name: selectedGame.name || "Unknown Game",
         };
     
+        console.log("📨 Preparing to send POST request:", post);
+    
         try {
             const token = localStorage.getItem("token");
+            console.log("🔑 Auth Token:", token);
+    
             if (!token) throw new Error("🚨 Missing auth token");
     
             const response = await fetch(API_POSTS, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`, // ✅ Ensure token is included
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(post),
             });
     
+            console.log("🔍 Response Status:", response.status);
+    
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error("🚨 Server Response Error:", errorData);
                 throw new Error(errorData.error || "Failed to create post");
             }
     
@@ -90,12 +99,13 @@ function PostsPage() {
             setSelectedGame(null);
             setGameSuggestions([]);
     
+            console.log("🔄 Fetching latest posts...");
             fetchPosts(); // ✅ Re-fetch posts
         } catch (error) {
             console.error("🚨 Error posting:", error.message);
         }
     }
-       
+    
     async function handleGameSearch(e) {
         const query = e.target.value;
         setGameSearch(query); // ✅ Only update the search input
