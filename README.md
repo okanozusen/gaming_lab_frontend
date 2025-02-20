@@ -90,6 +90,76 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
+PSQL SCHEMA
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    profile_pic TEXT DEFAULT NULL,  -- Base64 or URL
+    banner TEXT DEFAULT NULL,  -- Base64 or URL
+    platforms TEXT[] DEFAULT '{}', -- Array of preferred platforms
+    genres TEXT[] DEFAULT '{}', -- Array of favorite genres
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE friends (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    friend_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'pending',  -- pending, accepted, blocked
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, friend_id)  -- Prevent duplicate friend requests
+);
+
+CREATE TABLE games (
+    id SERIAL PRIMARY KEY,
+    game_id INT UNIQUE NOT NULL,  -- External game ID from IGDB API
+    name VARCHAR(255) NOT NULL,
+    genre VARCHAR(50) DEFAULT NULL,
+    platform VARCHAR(50) DEFAULT NULL,
+    cover_image TEXT DEFAULT NULL
+);
+
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    game_id INT NOT NULL REFERENCES games(game_id) ON DELETE CASCADE,
+    game_name VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    profile_pic TEXT DEFAULT NULL,  -- Cached user profile picture
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE replies (
+    id SERIAL PRIMARY KEY,
+    post_id INT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    profile_pic TEXT DEFAULT NULL,  -- Cached user profile picture
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE messages (
+    id SERIAL PRIMARY KEY,
+    sender_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE knex_migrations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    batch INT NOT NULL,
+    migration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE knex_migrations_lock (
+    is_locked BOOLEAN DEFAULT FALSE
+);
+
+
 The Gaming Lab
 The Gaming Lab is an interactive website for gaming enthusiasts to explore and rate their favorite video games, as well as connect with other gamers. The website provides users with a seamless experience of searching for games, filtering results based on various criteria, and sharing opinions through posts and comments.
 
