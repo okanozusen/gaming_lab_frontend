@@ -97,8 +97,8 @@ function PostsPage() {
     }
        
     async function handleGameSearch(e) {
-        const query = e.target.value.trim();
-        setGameSearch(query); // ✅ Only update search field
+        const query = e.target.value;
+        setGameSearch(query); // ✅ Only update the search input
     
         if (query.length < 2) {
             setGameSuggestions([]);
@@ -115,12 +115,12 @@ function PostsPage() {
             console.error("🚨 Error fetching game suggestions:", error.message);
             setGameSuggestions([]);
         }
-    }
-    
+    }      
     
     function handleGameSelection(game) {
         setSelectedGame(game);
-        setGameSuggestions([]); // ✅ Clear dropdown after selection
+        setGameSearch(""); // ✅ Reset search field after selecting a game
+        setGameSuggestions([]);
     }
     
 
@@ -224,29 +224,29 @@ function PostsPage() {
                                 </h3>
                             ) : (
                                 <input
-    type="text"
-    placeholder="Search for a game..."
-    value={selectedGame ? selectedGame.name : newPost} 
-    onChange={handleGameSearch}
-    className="game-search"
-/>
+                                type="text"
+                                placeholder="Search for a game..."
+                                value={gameSearch} // ✅ Use separate state
+                                onChange={handleGameSearch}
+                                className="game-search"
+                            />
 
                             )}
     
                             {/* ✅ Game Suggestions Dropdown (Updated) */}
                             {gameSuggestions.length > 0 && (
     <div className="game-suggestions">
-        {gameSuggestions.map((game) => (
-            <div
-                key={game.id}
-                onClick={() => handleGameSelection(game)}
-                className="suggestion"
-                style={{ cursor: "pointer" }} // ✅ Adds pointer cursor
-            >
-                {game.name}
-            </div>
-        ))}
-    </div>
+    {gameSuggestions.map((game) => (
+        <div
+            key={game.id}
+            onClick={() => handleGameSelection(game)}
+            className="suggestion"
+            style={{ cursor: "pointer" }} // ✅ Adds pointer cursor
+        >
+            {game.name}
+        </div>
+    ))}
+</div>
 )}
                         </div>
                     </div>
