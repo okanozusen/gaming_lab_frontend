@@ -97,17 +97,16 @@ function PostsPage() {
     
     async function handleGameSearch(e) {
         const query = e.target.value.trim();
-        setNewPost(query);
-
+        
         if (query.length < 2) {
             setGameSuggestions([]);
             return;
         }
-
+    
         try {
             const response = await fetch(`${API_GAMES}?search=${encodeURIComponent(query)}&page=1`);
             if (!response.ok) throw new Error("Server responded with an error");
-
+    
             const data = await response.json();
             setGameSuggestions(Array.isArray(data) ? data.slice(0, 5) : []);
         } catch (error) {
@@ -115,6 +114,12 @@ function PostsPage() {
             setGameSuggestions([]);
         }
     }
+    
+    function handleGameSelection(game) {
+        setSelectedGame(game);
+        setGameSuggestions([]); // ✅ Clear dropdown after selection
+    }
+    
 
     async function handleReplySubmit(e, postId) {
         e.preventDefault();
@@ -174,16 +179,13 @@ function PostsPage() {
             if (data.success) {
                 setFriends((prev) => ({
                     ...prev,
-                    [friendUsername]: true, // ✅ Immediately update state
+                    [friendUsername]: true, // ✅ Immediately mark as a friend
                 }));
             }
         } catch (error) {
             console.error("🚨 Error adding friend:", error.message);
         }
     }
-    
-    
-    
     
     async function fetchFriends() {
         try {
@@ -217,12 +219,13 @@ function PostsPage() {
                                 </h3>
                             ) : (
                                 <input
-                                    type="text"
-                                    placeholder="Search for a game..."
-                                    value={newPost}
-                                    onChange={handleGameSearch} // ✅ Use game search function correctly
-                                    className="game-search"
-                                />
+    type="text"
+    placeholder="Search for a game..."
+    value={selectedGame ? selectedGame.name : newPost} // ✅ Keep selected game name
+    onChange={handleGameSearch}
+    className="game-search"
+/>
+
                             )}
     
                             {/* ✅ Game Suggestions Dropdown (Unchanged) */}
@@ -296,6 +299,7 @@ function PostsPage() {
         )
     )}
 </div>
+ 
 
                         </div>
     
