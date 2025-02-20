@@ -61,14 +61,14 @@ function PostsPage() {
             return;
         }
     
-        // ✅ Get the latest user data from localStorage
-        const storedUser = JSON.parse(localStorage.getItem("user"));
+        // ✅ Get the latest user data (force update)
+        const updatedUser = JSON.parse(localStorage.getItem("user"));
     
         const post = {
-            username: storedUser.username, 
-            profilePic: storedUser.profilePic || "https://placehold.co/50", // ✅ Use updated profile picture
+            username: updatedUser.username,
+            profilePic: updatedUser.profilePic || "https://placehold.co/50", // ✅ Use latest profile pic
             content: newPost.trim(),
-            game_id: selectedGame.id, 
+            game_id: selectedGame.id,
             game_name: selectedGame.name || "Unknown Game",
         };
     
@@ -110,7 +110,7 @@ function PostsPage() {
         } catch (error) {
             console.error("🚨 Error posting:", error.message);
         }
-    }         
+    }       
     
     async function handleGameSearch(e) {
         const query = e.target.value;
@@ -234,12 +234,7 @@ function PostsPage() {
                 <form onSubmit={handlePostSubmit} className="post-form">
                     <div className="post-header">
                         <div className="left">
-                        <img 
-                            src={post.profilePic && post.profilePic.startsWith("data:image") ? post.profilePic : post.profilePic || "https://placehold.co/50"} 
-                            alt="User" 
-                            className="profile-pic" 
-                        />
-
+                            <img src={user.profilePic || "https://placehold.co/50"} alt="User" className="profile-pic" />
                             <strong>{user?.username}</strong>
                         </div>
     
