@@ -21,8 +21,11 @@ function PostsPage() {
     const [gameSearch, setGameSearch] = useState("");
 
     useEffect(() => {
-        fetchPosts();
-        if (user) fetchFriends();
+        async function fetchData() {
+            await fetchPosts();  // ✅ Fetch posts first
+            if (user) await fetchFriends();  // ✅ Fetch friends only if user exists
+        }
+        fetchData();
     }, [user]);
     
 
@@ -212,11 +215,17 @@ function PostsPage() {
             const data = await response.json();
             console.log("✅ Friends Fetched:", data);
     
-            setFriends(data.reduce((acc, friend) => ({ ...acc, [friend.username]: true }), {}));
+            // Convert array to object for quick lookup
+            const friendMap = data.reduce((acc, friend) => {
+                acc[friend.username] = true;
+                return acc;
+            }, {});
+    
+            setFriends(friendMap); // ✅ Update friends state properly
         } catch (error) {
             console.error("🚨 Error fetching friends:", error.message);
         }
-    }
+    }    
       
     return (
         <div className="posts-page">
@@ -299,9 +308,9 @@ function PostsPage() {
                                 </h3>
                             </div>
                             <div className="right">
-    {user.username !== post.username && (
+    {user.username !== post.username && friends && Object.keys(friends).length > 0 && (
         friends[post.username] ? (
-            <span className="friend-badge">✅ Friend</span> // ✅ Show if already friends
+            <span className="friend-badge">✅ Friend</span> // ✅ If already friends
         ) : (
             <button 
                 className="add-friend-btn"
