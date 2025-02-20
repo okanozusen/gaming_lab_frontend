@@ -18,6 +18,7 @@ function PostsPage() {
     const [replyContent, setReplyContent] = useState({});
     const [showReplyBox, setShowReplyBox] = useState({});
     const [friends, setFriends] = useState({});
+    const [gameSearch, setGameSearch] = useState("");
 
     useEffect(() => {
         fetchPosts();
@@ -97,7 +98,8 @@ function PostsPage() {
     
     async function handleGameSearch(e) {
         const query = e.target.value.trim();
-        
+        setGameSearch(query); // ✅ Only update search field
+    
         if (query.length < 2) {
             setGameSuggestions([]);
             return;
@@ -114,6 +116,7 @@ function PostsPage() {
             setGameSuggestions([]);
         }
     }
+    
     
     function handleGameSelection(game) {
         setSelectedGame(game);
@@ -188,17 +191,21 @@ function PostsPage() {
     }
     
     async function fetchFriends() {
+        if (!user?.username) return;
+    
         try {
             const response = await fetch(`${API_FRIENDS}/list?username=${user.username}`);
             if (!response.ok) throw new Error("Failed to fetch friends");
     
             const data = await response.json();
             console.log("✅ Friends Fetched:", data);
+            
+            // ✅ Store friends as a map { username: true }
             setFriends(data.reduce((acc, friend) => ({ ...acc, [friend.username]: true }), {}));
         } catch (error) {
             console.error("🚨 Error fetching friends:", error.message);
         }
-    }
+    }    
     
  
     return (
@@ -219,40 +226,37 @@ function PostsPage() {
                                 </h3>
                             ) : (
                                 <input
-    type="text"
-    placeholder="Search for a game..."
-    value={selectedGame ? selectedGame.name : newPost} // ✅ Keep selected game name
-    onChange={handleGameSearch}
-    className="game-search"
-/>
+                                    type="text"
+                                    placeholder="Search for a game..."
+                                    value={gameSearch} // ✅ Use separate state
+                                    onChange={handleGameSearch}
+                                    className="game-search"
+                                />
 
                             )}
     
-                            {/* ✅ Game Suggestions Dropdown (Unchanged) */}
-                            {gameSuggestions.length > 0 && (
-                                <div className="game-suggestions">
-                                    {gameSuggestions.map((game) => (
-                                        <div
-                                            key={game.id}
-                                            onClick={() => {
-                                                setSelectedGame(game);
-                                                setNewPost("");
-                                                setGameSuggestions([]);
-                                            }}
-                                            className="suggestion"
-                                        >
-                                            {game.name}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                            {/* ✅ Game Suggestions Dropdown (Updated) */}
+{gameSuggestions.length > 0 && (
+    <div className="game-suggestions">
+        {gameSuggestions.map((game) => (
+            <div
+                key={game.id}
+                onClick={() => handleGameSelection(game)} // ✅ Now using handleGameSelection
+                className="suggestion"
+            >
+                {game.name}
+            </div>
+        ))}
+    </div>
+)}
+
                         </div>
                     </div>
     
                     {/* ✅ Post Text Input Always Available */}
                     <textarea
                         placeholder="What's on your mind?"
-                        value={newPost}
+                        value={newPost} // ✅ No longer tied to game search
                         onChange={(e) => setNewPost(e.target.value)}
                         className="post-input"
                     />
