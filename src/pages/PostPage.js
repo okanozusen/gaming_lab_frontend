@@ -50,7 +50,7 @@ function PostsPage() {
 
     async function handlePostSubmit(e) {
         e.preventDefault();
-        
+    
         if (!user?.username || !newPost.trim() || !selectedGame) {
             console.error("🚨 Missing post details!");
             return;
@@ -60,17 +60,19 @@ function PostsPage() {
             username: user.username,
             profilePic: user?.profilePic || "https://placehold.co/50",
             content: newPost.trim(),
-            game_id: selectedGame.id, // ✅ Ensure game_id is passed correctly
-            game_name: selectedGame.name || "Unknown Game", // ✅ Ensure game_name is always set
+            game_id: selectedGame.id, 
+            game_name: selectedGame.name || "Unknown Game",
         };
     
         try {
             const token = localStorage.getItem("token");
+            if (!token) throw new Error("🚨 Missing auth token");
+    
             const response = await fetch(API_POSTS, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`, // ✅ Ensure token is included
                 },
                 body: JSON.stringify(post),
             });
@@ -83,19 +85,17 @@ function PostsPage() {
             const responseData = await response.json();
             console.log("✅ Post submitted successfully!", responseData);
     
-            // ✅ Update state: Add new post at the top and reset inputs
-            setPosts((prevPosts) => [responseData, ...prevPosts]);
-            setNewPost("");
+            setPosts((prevPosts) => [responseData, ...prevPosts]); // ✅ Update UI
+            setNewPost(""); // ✅ Clear input
             setSelectedGame(null);
             setGameSuggestions([]);
     
-            // ✅ Re-fetch posts to ensure latest data is shown
-            fetchPosts();
+            fetchPosts(); // ✅ Re-fetch posts
         } catch (error) {
             console.error("🚨 Error posting:", error.message);
         }
     }
-    
+       
     async function handleGameSearch(e) {
         const query = e.target.value.trim();
         setGameSearch(query); // ✅ Only update search field
@@ -199,15 +199,13 @@ function PostsPage() {
     
             const data = await response.json();
             console.log("✅ Friends Fetched:", data);
-            
-            // ✅ Store friends as a map { username: true }
+    
             setFriends(data.reduce((acc, friend) => ({ ...acc, [friend.username]: true }), {}));
         } catch (error) {
             console.error("🚨 Error fetching friends:", error.message);
         }
-    }    
-    
- 
+    }
+      
     return (
         <div className="posts-page">
             {user ? (
@@ -226,30 +224,30 @@ function PostsPage() {
                                 </h3>
                             ) : (
                                 <input
-                                    type="text"
-                                    placeholder="Search for a game..."
-                                    value={gameSearch} // ✅ Use separate state
-                                    onChange={handleGameSearch}
-                                    className="game-search"
-                                />
+    type="text"
+    placeholder="Search for a game..."
+    value={selectedGame ? selectedGame.name : newPost} 
+    onChange={handleGameSearch}
+    className="game-search"
+/>
 
                             )}
     
                             {/* ✅ Game Suggestions Dropdown (Updated) */}
-{gameSuggestions.length > 0 && (
+                            {gameSuggestions.length > 0 && (
     <div className="game-suggestions">
         {gameSuggestions.map((game) => (
             <div
                 key={game.id}
-                onClick={() => handleGameSelection(game)} // ✅ Now using handleGameSelection
+                onClick={() => handleGameSelection(game)}
                 className="suggestion"
+                style={{ cursor: "pointer" }} // ✅ Adds pointer cursor
             >
                 {game.name}
             </div>
         ))}
     </div>
 )}
-
                         </div>
                     </div>
     
@@ -288,11 +286,10 @@ function PostsPage() {
                                     {post.game_name || "Unknown Game"}
                                 </h3>
                             </div>
-    
                             <div className="right">
     {user.username !== post.username && (
         friends[post.username] ? (
-            <span className="friend-badge">Friend</span> // ✅ Show "Friend" if already added
+            <span className="friend-badge">✅ Friend</span> // ✅ Show if already friends
         ) : (
             <button 
                 className="add-friend-btn"
@@ -303,8 +300,6 @@ function PostsPage() {
         )
     )}
 </div>
- 
-
                         </div>
     
                         <p>{post.content}</p>
