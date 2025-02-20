@@ -66,7 +66,7 @@ function PostsPage() {
     
         const post = {
             username: updatedUser.username,
-            profilePic: updatedUser.profilePic || "https://placehold.co/50", // ✅ Use latest profile pic
+            profilePic: updatedUser.profilePic?.slice(0, 255) || "https://placehold.co/50", // ✅ Use latest profile pic
             content: newPost.trim(),
             game_id: selectedGame.id,
             game_name: selectedGame.name || "Unknown Game",
