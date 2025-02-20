@@ -60,7 +60,9 @@ function PostsPage() {
     
         const post = {
             username: user.username,
-            profilePic: user.profilePic || "https://placehold.co/50",
+            profilePic: user.profilePic?.startsWith("data:image") 
+        ? "https://placehold.co/50" // Default placeholder if it's base64
+        : user.profilePic, // ✅ Ensure it's a URL
             content: newPost.trim(),
             game_id: selectedGame.id, 
             game_name: selectedGame.name || "Unknown Game",
