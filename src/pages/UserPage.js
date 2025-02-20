@@ -46,21 +46,31 @@ function UserPage() {
             const response = await fetch(`${API_USER}/${username}`);
             if (!response.ok) throw new Error(`Error: ${response.status}`);
             const data = await response.json();
-
-            setUser((prevUser) => ({
-                ...prevUser,
-                profilePic: data.profile_pic ? `data:image/png;base64,${data.profile_pic}` : prevUser.profilePic,
-                banner: data.banner ? `data:image/png;base64,${data.banner}` : prevUser.banner,
-                platforms: data.platforms?.length ? data.platforms : prevUser.platforms,
-                genres: data.genres?.length ? data.genres : prevUser.genres,
-            }));
-            
+    
+            const updatedUser = {
+                ...data,
+                profilePic: data.profile_pic 
+                    ? `data:image/png;base64,${data.profile_pic}`  // ✅ Convert Base64
+                    : "https://placehold.co/50",  // ✅ Default placeholder
+                banner: data.banner 
+                    ? `data:image/png;base64,${data.banner}` 
+                    : "https://picsum.photos/800/250",
+                platforms: data.platforms?.length ? data.platforms : [],
+                genres: data.genres?.length ? data.genres : [],
+            };
+    
+            setUser(updatedUser);
+    
+            // ✅ Persist updated user data in localStorage
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+    
+            console.log("✅ User data updated and stored!", updatedUser);
             
         } catch (error) {
             console.error("🚨 Error fetching user data:", error.message);
         }
     }
-
+    
     async function fetchUserPosts(username) {
         try {
             const response = await fetch(`${API_POSTS}?username=${username}`);

@@ -28,29 +28,37 @@ function PostsPage() {
         fetchData();
     }, [user]);
     
-
     async function fetchPosts() {
         try {
             const response = await fetch(API_POSTS);
             if (!response.ok) throw new Error("Failed to fetch posts");
-
-            const data = await response.json();
-            setPosts(Array.isArray(data) ? data : []);
-
-            // Track friends per user
+    
+            let data = await response.json();
+    
+            // ✅ Convert profile pictures properly
+            data = data.map(post => ({
+                ...post,
+                profilePic: post.profile_pic 
+                    ? `data:image/png;base64,${post.profile_pic}`  // ✅ Convert Base64
+                    : "https://placehold.co/50",  // ✅ Default placeholder
+            }));
+    
+            setPosts(data);
+    
+            // ✅ Track friends per user
             const friendMap = {};
             data.forEach(post => {
                 post.replies?.forEach(reply => {
                     friendMap[reply.username] = reply.isFriend || false;
                 });
             });
-
+    
             setFriends(friendMap);
         } catch (error) {
             console.error("🚨 Error fetching posts:", error.message);
         }
     }
-
+    
     async function handlePostSubmit(e) {
         e.preventDefault();
     
@@ -66,7 +74,7 @@ function PostsPage() {
     
         const post = {
             username: updatedUser.username,
-            profilePic: updatedUser.profilePic?.slice(0, 255) || "https://placehold.co/50", // ✅ Use latest profile pic
+            profilePic: updatedUser.profilePic || "https://placehold.co/50", // ✅ Use latest profile pic
             content: newPost.trim(),
             game_id: selectedGame.id,
             game_name: selectedGame.name || "Unknown Game",
