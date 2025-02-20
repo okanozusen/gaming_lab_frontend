@@ -30,13 +30,10 @@ function UserPage() {
     useEffect(() => {
         if (!user?.username) return;
     
-        // First, check if profilePic exists in localStorage before making API calls
+        // ✅ First, get latest user data from localStorage
         const storedUser = JSON.parse(localStorage.getItem("user"));
-        if (storedUser?.profilePic) {
-            setUser((prevUser) => ({
-                ...prevUser,
-                profilePic: storedUser.profilePic,
-            }));
+        if (storedUser?.profilePic && storedUser.profilePic !== user.profilePic) {
+            setUser(storedUser);
         }
     
         fetchUserData(user.username);
@@ -97,26 +94,21 @@ function UserPage() {
     
             console.log("✅ Profile picture updated successfully!");
     
-            // ✅ Update the global user state in AuthContext
-            setUser((prevUser) => ({
-                ...prevUser,
+            // ✅ Update user state with new profile pic
+            const updatedUser = {
+                ...user,
                 profilePic: `data:image/png;base64,${data.profilePic}`,
-            }));
+            };
             
-            localStorage.setItem(
-                "user",
-                JSON.stringify({
-                    ...user,
-                    profilePic: `data:image/png;base64,${data.profilePic}`,
-                })
-            );                        
+            setUser(updatedUser); // ✅ Ensure React updates the UI
+            localStorage.setItem("user", JSON.stringify(updatedUser)); // ✅ Update localStorage
     
             alert("✅ Profile picture updated successfully!");
         } catch (error) {
             console.error("🚨 Error uploading profile picture:", error.message);
             alert(`❌ ${error.message}`);
         }
-    }
+    }    
     
     async function handleBannerUpload(event) {
         const file = event.target.files[0];

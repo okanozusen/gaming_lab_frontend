@@ -3,21 +3,39 @@ import { createContext, useState, useEffect, useContext } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);  // ✅ Add `setUser` here
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const savedUser = localStorage.getItem("user");
         const savedToken = localStorage.getItem("token");
-    
+
         if (savedUser && savedToken) {
             try {
-                setUser(JSON.parse(savedUser));
+                const parsedUser = JSON.parse(savedUser);
+                setUser(parsedUser);
+                fetchUserProfile(parsedUser.username); // ✅ Fetch latest profile pic on load
             } catch (error) {
                 console.error("🚨 Error parsing user data:", error);
-                setUser(null); // Reset user if parsing fails
+                setUser(null);
             }
         }
-    }, []);    
+    }, []);
+
+    // ✅ Fetch latest user profile from the backend
+    const fetchUserProfile = async (username) => {
+        if (!username) return;
+
+        try {
+            const response = await fetch(`https://gaming-lab.onrender.com/api/users/${username}`);
+            if (!response.ok) throw new Error("Failed to fetch user profile");
+
+            const updatedUser = await response.json();
+            setUser(updatedUser);
+            localStorage.setItem("user", JSON.stringify(updatedUser)); // ✅ Persist latest user info
+        } catch (error) {
+            console.error("🚨 Error fetching user profile:", error.message);
+        }
+    };
 
     const login = (userData, token) => {
         if (!userData || !userData.username) {
@@ -29,8 +47,8 @@ export const AuthProvider = ({ children }) => {
             return;
         }
 
-        setUser(userData);  // ✅ Now `setUser` is defined correctly
-        localStorage.setItem("user", JSON.stringify(userData));  
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("token", token);
         console.log("✅ Login successful - User and token saved!", userData, token);
     };
@@ -42,7 +60,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, setUser, login, logout }}>  {/* ✅ Make sure `setUser` is provided */}
+        <AuthContext.Provider value={{ user, setUser, login, logout, fetchUserProfile }}>
             {children}
         </AuthContext.Provider>
     );

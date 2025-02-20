@@ -61,13 +61,14 @@ function PostsPage() {
             return;
         }
     
+        // ✅ Get the latest user data (force update)
+        const updatedUser = JSON.parse(localStorage.getItem("user"));
+    
         const post = {
-            username: user.username,
-            profilePic: user.profilePic?.startsWith("data:image") 
-        ? "https://placehold.co/50" // Default placeholder if it's base64
-        : user.profilePic, // ✅ Ensure it's a URL
+            username: updatedUser.username,
+            profilePic: updatedUser.profilePic || "https://placehold.co/50", // ✅ Use latest profile pic
             content: newPost.trim(),
-            game_id: selectedGame.id, 
+            game_id: selectedGame.id,
             game_name: selectedGame.name || "Unknown Game",
         };
     
@@ -109,7 +110,7 @@ function PostsPage() {
         } catch (error) {
             console.error("🚨 Error posting:", error.message);
         }
-    }
+    }       
     
     async function handleGameSearch(e) {
         const query = e.target.value;
